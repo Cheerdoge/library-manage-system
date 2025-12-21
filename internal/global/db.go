@@ -2,10 +2,13 @@ package global
 
 import (
 	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+var DB *gorm.DB
 
 func InitDB() (*gorm.DB, error) {
 	user := os.Getenv("DB_USER")
@@ -20,6 +23,12 @@ func InitDB() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(20)                 // 最大并发连接数
+	sqlDB.SetMaxIdleConns(10)                 // 最大空闲连接数
+	sqlDB.SetConnMaxLifetime(5 * time.Minute) // 单连接最长存活
+	sqlDB.SetConnMaxIdleTime(2 * time.Minute) // 单连接最长空闲
 
 	return db, nil
 }
