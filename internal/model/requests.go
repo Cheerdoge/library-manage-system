@@ -9,13 +9,19 @@ type AddBook struct {
 	Num      int    `json:"num"`
 }
 
-//查找图书请求，预计逻辑：书名-->id-->书
+//查找图书请求，逻辑：书名-->id-->书
 type FindBook struct {
-	Id uint `json:"id"`
+	Bookname string `json:"bookname"`
 }
 
 //删除图书请求，分部分和全部
 type DelBook struct {
+	Id  uint `json:"id"`
+	Num uint `json:"num"`
+}
+
+//更新图书信息，主要是数量
+type UpdateBook struct {
 	Id  uint `json:"id"`
 	Num uint `json:"num"`
 }
@@ -42,7 +48,6 @@ type LogoutUser struct {
 
 //用户修改密码请求
 type ChangePassword struct {
-	Username    string `json:"username"`
 	Oldpassword string `json:"oldpassword"`
 	Newpassword string `json:"newpassword"`
 }
@@ -53,17 +58,26 @@ type ChangeUserInfo struct {
 	Telenum  string `json:"telenum"`
 }
 
+//查找用户请求
+type FindUser struct {
+	Username string `json:"username"`
+}
+
+//用户注销请求
+type DelUser struct {
+	Username string `json:"username"`
+	Password string `json:"-"`
+}
+
 //================BorrowRecord===============
 
 //新增借书记录请求
-type AddBorrowRecord struct {
+type BorrowBook struct {
 	Bookid uint `json:"book_id"`
 	Userid uint `json:"user_id"`
 }
 
 //归还图书请求
 type ReturnBook struct {
-	Bookid uint   `json:"book_id"`
-	Userid uint   `json:"user_id"`
-	Type   string `json:"type"` //归还类型，分为正常归还和逾期归还，normal和overdue
+	Recordid uint `json:"record_id"`
 }
