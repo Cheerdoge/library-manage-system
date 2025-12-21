@@ -7,7 +7,7 @@ import (
 )
 
 type Book struct {
-	Id        uint   `json:"id"`
+	ID        uint   `json:"id"`
 	Bookname  string `json:"bookname"`
 	Author    string `json:"author"`
 	Num       int    `json:"num"`
@@ -17,7 +17,7 @@ type Book struct {
 }
 
 type User struct {
-	Id        uint   `json:"id"`
+	ID        uint   `json:"id"`
 	Name      string `json:"name"`
 	Password  string `json:"-"`
 	Telenum   string `json:"telenum"`
@@ -28,14 +28,14 @@ type User struct {
 }
 
 type BorrowRecord struct {
-	Id         uint `json:"id"`
+	ID         uint `json:"id"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
-	Bookid     uint           `json:"book_id"`
-	Userid     uint           `json:"user_id"`
-	BorrowData time.Time      `json:"borrow_data"`
-	ReturnData time.Time      `json:"return_data"`
+	BookID     uint           `json:"book_id" gorm:"column:book_id"`
+	UserID     uint           `json:"user_id" gorm:"column:user_id"`
+	BorrowDate time.Time      `json:"borrow_date"`
+	ReturnDate time.Time      `json:"return_date"`
 	State      string         `json:"state"` //未归还：borrowing, 已归还：returned
 }
 
