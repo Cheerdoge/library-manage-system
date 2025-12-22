@@ -62,3 +62,15 @@ func (dao *BorrowRecordDao) FindBorrowRecord(userid uint) ([]model.BorrowRecord,
 	}
 	return records, nil
 }
+
+// FindAllBorrowRecords 查找所有未归还借书记录
+// 成功：借书记录切片，nil
+// 失败：nil，错误信息
+func (dao *BorrowRecordDao) FindAllBorrowRecords() ([]model.BorrowRecord, error) {
+	var records []model.BorrowRecord
+	result := dao.db.Find(&records, "state = ?", "borrowing")
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return records, nil
+}
