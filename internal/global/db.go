@@ -1,6 +1,7 @@
 package global
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -15,6 +16,20 @@ func InitDB() (*gorm.DB, error) {
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	name := os.Getenv("DB_NAME")
+
+	// 为缺省环境变量提供安全的默认值，避免出现 :0 的端口错误
+	if user == "" {
+		user = "root"
+	}
+	if host == "" {
+		host = "127.0.0.1"
+	}
+	if port == "" {
+		port = "3306"
+	}
+	if name == "" {
+		name = "library_db"
+	}
 
 	dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + name + "?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -47,6 +62,7 @@ func InitAdmin(db *gorm.DB) error {
 		return result.Error
 	}
 	if result.RowsAffected > 0 {
+		fmt.Println("正在新建管理员账号")
 		user.Name = "admin"
 		user.Password = "admin123"
 		user.Type = "admin"
