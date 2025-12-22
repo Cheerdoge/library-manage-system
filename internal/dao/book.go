@@ -84,7 +84,7 @@ func (dao *BookDao) UpdateBook(bookid uint, sum_num int) error {
 	}
 	book.SumNum = sum_num
 	book.NowNum = sum_num - book.BorrNum
-	result := dao.db.Save(&book)
+	result := dao.db.Save(book)
 	if result.Error != nil {
 		return result.Error
 	}

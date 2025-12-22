@@ -74,7 +74,7 @@ func (dao *UserDao) ChangePassword(userid uint, newpassword string) error {
 		return err
 	}
 	user.Password = newpassword
-	result := dao.db.Save(&user)
+	result := dao.db.Save(user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -92,7 +92,7 @@ func (dao *UserDao) ChangeUserInfo(userid uint, username string, telenum string)
 	}
 	user.Name = username
 	user.Telenum = telenum
-	result := dao.db.Save(&user)
+	result := dao.db.Save(user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -109,7 +109,7 @@ func (dao *UserDao) DeleUser(userid uint) error {
 	if err != nil {
 		return errors.New("用户不存在")
 	}
-	result := dao.db.Delete(&user)
+	result := dao.db.Delete(user)
 	if result.Error != nil {
 		return result.Error
 	}
