@@ -3,17 +3,27 @@ package dao
 import (
 	"errors"
 
-	"github.com/Cheerdoge/library-manage-system/internal/global"
 	"github.com/Cheerdoge/library-manage-system/internal/model"
+	"gorm.io/gorm"
 )
+
+type BookDao struct {
+	db *gorm.DB
+}
+
+func NewBookDao(db *gorm.DB) *BookDao {
+	return &BookDao{
+		db: db,
+	}
+}
 
 // FindBook 通过ID查找图书
 // 成功：书指针，nil
 // 失败：nil，错误信息
-func FindBook(ID uint) (*model.Book, error) {
+func (dao *BookDao) FindBook(ID uint) (*model.Book, error) {
 	var book model.Book
 	//根据id查询，并把结果填入book
-	result := global.DB.First(&book, ID)
+	result := dao.db.First(&book, ID)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -23,14 +33,14 @@ func FindBook(ID uint) (*model.Book, error) {
 // AddBook 新增单个图书
 // 成功：图书id, nil
 // 失败：0, 错误信息
-func AddBook(bookname string, author string, sum_num int) (uint, error) {
+func (dao *BookDao) AddBook(bookname string, author string, sum_num int) (uint, error) {
 	var book model.Book
 	book.Bookname = bookname
 	book.Author = author
 	book.SumNum = sum_num
 	book.BorrNum = 0
 	book.NowNum = sum_num
-	result := global.DB.Create(&book)
+	result := dao.db.Create(&book)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -40,9 +50,9 @@ func AddBook(bookname string, author string, sum_num int) (uint, error) {
 // AddBooks 新增多本图书
 // 成功：图书id切片, nil
 // 失败：0, 错误信息
-func AddBooks(newbooks []*model.Book) ([]uint, error) {
+func (dao *BookDao) AddBooks(newbooks []*model.Book) ([]uint, error) {
 	var ids []uint
-	result := global.DB.Create(&newbooks)
+	result := dao.db.Create(&newbooks)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -55,8 +65,8 @@ func AddBooks(newbooks []*model.Book) ([]uint, error) {
 // DelBook 删除图书
 // 成功：nil
 // 失败：错误信息
-func DelBoook(book *model.Book) error {
-	result := global.DB.Delete(book)
+func (dao *BookDao) DelBook(book *model.Book) error {
+	result := dao.db.Delete(book)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -66,15 +76,15 @@ func DelBoook(book *model.Book) error {
 // UpdateBook 更新图书信息,主要用做数量更新
 // 成功：nil
 // 失败：错误信息
-func UpdateBook(bookid uint, sum_num int) error {
+func (dao *BookDao) UpdateBook(bookid uint, sum_num int) error {
 	var book *model.Book
-	book, err := FindBook(bookid)
+	book, err := dao.FindBook(bookid)
 	if err != nil {
 		return errors.New("书籍不存在")
 	}
 	book.SumNum = sum_num
 	book.NowNum = sum_num - book.BorrNum
-	result := global.DB.Save(&book)
+	result := dao.db.Save(&book)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -84,10 +94,10 @@ func UpdateBook(bookid uint, sum_num int) error {
 // GetAllBooks 获取所有图书
 // 成功：图书切片，nil
 // 失败：nil，错误信息
-func GetAllBooks() ([]model.BookInfo, error) {
+func (dao *BookDao) GetAllBooks() ([]model.BookInfo, error) {
 	var books []model.BookInfo
 	var bookModels []model.Book
-	result := global.DB.Find(&bookModels)
+	result := dao.db.Find(&bookModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -107,10 +117,10 @@ func GetAllBooks() ([]model.BookInfo, error) {
 // GetAvailableBooks 获取所有可借图书
 // 成功：图书切片，nil
 // 失败：nil，错误信息
-func GetAvailableBooks() ([]model.BookInfo, error) {
+func (dao *BookDao) GetAvailableBooks() ([]model.BookInfo, error) {
 	var books []model.BookInfo
 	var bookModels []model.Book
-	result := global.DB.Where("now_num > ?", 0).Find(&bookModels)
+	result := dao.db.Where("now_num > ?", 0).Find(&bookModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}

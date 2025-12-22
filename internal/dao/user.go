@@ -3,19 +3,29 @@ package dao
 import (
 	"errors"
 
-	"github.com/Cheerdoge/library-manage-system/internal/global"
 	"github.com/Cheerdoge/library-manage-system/internal/model"
+	"gorm.io/gorm"
 )
+
+type UserDao struct {
+	db *gorm.DB
+}
+
+func NewUserDao(db *gorm.DB) *UserDao {
+	return &UserDao{
+		db: db,
+	}
+}
 
 // Register注册新用户
 // 成功：用户id，nil
 // 失败：0，错误信息
-func Register(username string, password string, usertype string) (uint, error) {
+func (dao *UserDao) Register(username string, password string, usertype string) (uint, error) {
 	var user model.User
 	user.Name = username
 	user.Password = password
 	user.Type = usertype
-	result := global.DB.Create(&user)
+	result := dao.db.Create(&user)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -25,9 +35,9 @@ func Register(username string, password string, usertype string) (uint, error) {
 // FindUser 通过ID查找用户
 // 成功：用户指针，nil
 // 失败：nil，错误信息
-func FindUser(Id uint) (*model.User, error) {
+func (dao *UserDao) FindUser(Id uint) (*model.User, error) {
 	var user model.User
-	result := global.DB.First(&user, Id)
+	result := dao.db.First(&user, Id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -37,9 +47,9 @@ func FindUser(Id uint) (*model.User, error) {
 // Login 用户登录
 // 成功：用户指针，nil
 // 失败：nil，错误信息
-func Login(username string, password string) (*model.User, error) {
+func (dao *UserDao) Login(username string, password string) (*model.User, error) {
 	var user model.User
-	result := global.DB.Where("name = ? AND password = ?", username, password).First(&user)
+	result := dao.db.Where("name = ? AND password = ?", username, password).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -57,14 +67,14 @@ func Logout(username string) error {
 // 管理员直接操作，用户验证密码
 // 成功：nil
 // 失败：错误信息
-func ChangePassword(userid uint, newpassword string) error {
+func (dao *UserDao) ChangePassword(userid uint, newpassword string) error {
 	var user *model.User
-	user, err := FindUser(userid)
+	user, err := dao.FindUser(userid)
 	if err != nil {
 		return err
 	}
 	user.Password = newpassword
-	result := global.DB.Save(&user)
+	result := dao.db.Save(&user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -74,15 +84,15 @@ func ChangePassword(userid uint, newpassword string) error {
 // ChangeUserInfo 修改用户信息
 // 成功：nil
 // 失败：错误信息
-func ChangeUserInfo(userid uint, username string, telenum string) error {
+func (dao *UserDao) ChangeUserInfo(userid uint, username string, telenum string) error {
 	var user *model.User
-	user, err := FindUser(userid)
+	user, err := dao.FindUser(userid)
 	if err != nil {
 		return errors.New("用户不存在")
 	}
 	user.Name = username
 	user.Telenum = telenum
-	result := global.DB.Save(&user)
+	result := dao.db.Save(&user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -93,13 +103,13 @@ func ChangeUserInfo(userid uint, username string, telenum string) error {
 // 管理员直接操作，用户验证密码
 // 成功：nil
 // 失败：错误信息
-func DeleUser(userid uint) error {
+func (dao *UserDao) DeleUser(userid uint) error {
 	var user *model.User
-	user, err := FindUser(userid)
+	user, err := dao.FindUser(userid)
 	if err != nil {
 		return errors.New("用户不存在")
 	}
-	result := global.DB.Delete(&user)
+	result := dao.db.Delete(&user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -110,10 +120,10 @@ func DeleUser(userid uint) error {
 // 仅管理员可用
 // 成功：用户信息切片, nil
 // 失败：nil, 错误信息
-func GetAllUsers() ([]model.UserInfo, error) {
+func (dao *UserDao) GetAllUsers() ([]model.UserInfo, error) {
 	var users []model.User
 	var userinfos []model.UserInfo
-	result := global.DB.Find(&users)
+	result := dao.db.Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
 	}
