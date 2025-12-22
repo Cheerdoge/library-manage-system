@@ -43,12 +43,6 @@ type BorrowRecord struct {
 	State      string         `json:"state"` //未归还：borrowing, 已归还：returned
 }
 
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-}
-
 type BookInfo struct {
 	ID       uint   `json:"id"`
 	Bookname string `json:"bookname"`
