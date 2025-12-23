@@ -65,7 +65,7 @@ func InitAdmin(db *gorm.DB) error {
 		fmt.Println("正在新建管理员账号")
 		user.Name = "admin"
 		user.Password = "admin123"
-		user.Type = "admin"
+		user.IsAdmin = true
 		if err := db.Save(&user).Error; err != nil {
 			return err
 		}

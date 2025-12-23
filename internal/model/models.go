@@ -25,7 +25,7 @@ type User struct {
 	Telenum    string `json:"telenum"`
 	NowBorrNum int    `json:"now_borr_num"`
 	OverdueNum int    `json:"overdue_num"`
-	Type       string `json:"type"` //user为普通用户，admin为管理员
+	IsAdmin    bool   `json:"is_admin"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
@@ -55,6 +55,15 @@ type UserInfo struct {
 	ID         uint   `json:"id"`
 	Name       string `json:"name"`
 	Telenum    string `json:"telenum"`
-	Type       string `json:"type"` //user为普通用户，admin为管理员
+	IsAdmin    bool   `json:"is_admin"`
 	BorrRecNum int    `json:"borr_rec_num"`
+}
+
+type Session struct {
+	ID        uint      `json:"id"`
+	UserID    uint      `json:"user_id"`
+	IsAdmin   bool      `json:"is_admin"`
+	Token     string    `json:"token"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
 }

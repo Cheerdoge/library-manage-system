@@ -9,7 +9,7 @@ import (
 type Principal struct {
 	UserID   uint   `json:"user_id"`
 	UserName string `json:"username"`
-	UserType string `json:"user_type"` //"user"和"admin""
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 func GetPrincipal(c *gin.Context) (*Principal, error) {
@@ -22,12 +22,4 @@ func GetPrincipal(c *gin.Context) (*Principal, error) {
 		return nil, errors.New("用户信息类型错误")
 	}
 	return p, nil
-}
-
-// 真为管理，假为用户
-func (p *Principal) IsAdmin() bool {
-	if p.UserType == "admin" {
-		return true
-	}
-	return false
 }

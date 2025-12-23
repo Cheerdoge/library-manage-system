@@ -20,11 +20,11 @@ func NewUserDao(db *gorm.DB) *UserDao {
 // Adduser添加新用户
 // 成功：用户id，nil
 // 失败：0，错误信息
-func (dao *UserDao) Adduser(username string, password string, usertype string) (uint, error) {
+func (dao *UserDao) Adduser(username string, password string, isadmin bool) (uint, error) {
 	var user model.User
 	user.Name = username
 	user.Password = password
-	user.Type = usertype
+	user.IsAdmin = isadmin
 	result := dao.db.Create(&user)
 	if result.Error != nil {
 		return 0, result.Error
@@ -126,7 +126,7 @@ func (dao *UserDao) GetAllUsers() ([]model.UserInfo, error) {
 			ID:         user.ID,
 			Name:       user.Name,
 			Telenum:    user.Telenum,
-			Type:       user.Type,
+			IsAdmin:    user.IsAdmin,
 			BorrRecNum: user.NowBorrNum,
 		}
 		userinfos = append(userinfos, userinfo)
