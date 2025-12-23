@@ -1,7 +1,5 @@
 package model
 
-import "errors"
-
 // 错误码定义 (HTTP状态码)
 const (
 	// 成功
@@ -18,12 +16,13 @@ const (
 	CodeServerError = 500
 )
 
-// 预定义的错误变量
-var (
-	ErrUserNotFound      = errors.New("用户不存在")
-	ErrUserAlreadyExists = errors.New("用户已存在")
-	ErrPasswordWrong     = errors.New("密码错误")
-	ErrBookNotFound      = errors.New("图书不存在")
-	ErrInsufficientStock = errors.New("图书库存不足")
-	ErrNoUnreturnedBooks = errors.New("用户有未归还的图书")
+const (
+	ErrUserAlreadyExists = "用户已存在"
+	ErrUserNotFound      = "用户不存在"
+	ErrPasswordWrong     = "密码错误"
+	ErrInvalidInput      = "无效的输入参数"
+	ErrUnauthorized      = "未授权的操作"
+	ErrForbidden         = "无权限执行此操作"
+	ErrConflict          = "请求与当前资源状态冲突"
+	ErrServerInternal    = "服务器内部错误"
 )
