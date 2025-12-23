@@ -17,13 +17,26 @@ func NewBookDao(db *gorm.DB) *BookDao {
 	}
 }
 
-// FindBook 通过ID查找图书
+// FindBookById 通过ID查找图书
 // 成功：书指针，nil
 // 失败：nil，错误信息
-func (dao *BookDao) FindBook(ID uint) (*model.Book, error) {
+func (dao *BookDao) FindBookById(ID uint) (*model.Book, error) {
 	var book model.Book
 	//根据id查询，并把结果填入book
 	result := dao.db.First(&book, ID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &book, nil
+}
+
+// FindBookByName 通过名称查找图书
+// 成功：书指针，nil
+// 失败：nil，错误信息
+func (dao *BookDao) FindBookByName(name string) (*model.Book, error) {
+	var book model.Book
+	//根据name查询，并把结果填入book
+	result := dao.db.First(&book, "bookname = ?", name)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -78,7 +91,7 @@ func (dao *BookDao) DelBook(book *model.Book) error {
 // 失败：错误信息
 func (dao *BookDao) UpdateBook(bookid uint, sum_num int) error {
 	var book *model.Book
-	book, err := dao.FindBook(bookid)
+	book, err := dao.FindBookById(bookid)
 	if err != nil {
 		return errors.New("书籍不存在")
 	}
