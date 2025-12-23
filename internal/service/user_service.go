@@ -8,7 +8,7 @@ type UserRepository interface {
 	AddUser(username string, password string, usertype string) (uint, error)
 	FindUserById(Id uint) (*model.User, error)
 	UpdatePassword(userid uint, newpassword string) error
-	UpdateUserInfo(userid uint, username string, telenum string) error
+	UpdateUserInfo(userid uint, username string, telenum string, overdueNum int) error
 	FindUserByName(name string) (*model.User, error)
 	DeleUser(userid uint) error
 	GetAllUsers() ([]model.UserInfo, error)
@@ -111,7 +111,7 @@ func (s *UserService) GetUserInfo(userid uint) (user *model.UserInfo, message st
 // ChangeUserInfo 修改用户信息
 // 成功返回空字符串
 func (s *UserService) ChangeUserInfo(userid uint, username string, telenum string) (message string) {
-	err := s.userrepo.UpdateUserInfo(userid, username, telenum)
+	err := s.userrepo.UpdateUserInfo(userid, username, telenum, 0)
 	if err != nil {
 		return err.Error()
 	}
