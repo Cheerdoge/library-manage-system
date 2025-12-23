@@ -20,7 +20,7 @@ type Book struct {
 
 type User struct {
 	ID         uint   `json:"id"`
-	Name       string `json:"name"`
+	UserName   string `json:"username"`
 	Password   string `json:"-"`
 	Telenum    string `json:"telenum"`
 	NowBorrNum int    `json:"now_borr_num"`
@@ -53,7 +53,7 @@ type BookInfo struct {
 
 type UserInfo struct {
 	ID         uint   `json:"id"`
-	Name       string `json:"name"`
+	UserName   string `json:"username"`
 	Telenum    string `json:"telenum"`
 	IsAdmin    bool   `json:"is_admin"`
 	BorrRecNum int    `json:"borr_rec_num"`

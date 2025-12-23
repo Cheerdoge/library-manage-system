@@ -22,7 +22,7 @@ func NewUserDao(db *gorm.DB) *UserDao {
 // 失败：0，错误信息
 func (dao *UserDao) Adduser(username string, password string, isadmin bool) (uint, error) {
 	var user model.User
-	user.Name = username
+	user.UserName = username
 	user.Password = password
 	user.IsAdmin = isadmin
 	result := dao.db.Create(&user)
@@ -83,7 +83,7 @@ func (dao *UserDao) UpdateUserInfo(userid uint, username string, telenum string)
 	if err != nil {
 		return errors.New("用户不存在")
 	}
-	user.Name = username
+	user.UserName = username
 	user.Telenum = telenum
 	result := dao.db.Save(user)
 	if result.Error != nil {
@@ -124,7 +124,7 @@ func (dao *UserDao) GetAllUsers() ([]model.UserInfo, error) {
 	for _, user := range users {
 		userinfo := model.UserInfo{
 			ID:         user.ID,
-			Name:       user.Name,
+			UserName:   user.UserName,
 			Telenum:    user.Telenum,
 			IsAdmin:    user.IsAdmin,
 			BorrRecNum: user.NowBorrNum,

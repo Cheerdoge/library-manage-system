@@ -63,7 +63,7 @@ func InitAdmin(db *gorm.DB) error {
 	}
 	if result.RowsAffected > 0 {
 		fmt.Println("正在新建管理员账号")
-		user.Name = "admin"
+		user.UserName = "admin"
 		user.Password = "admin123"
 		user.IsAdmin = true
 		if err := db.Save(&user).Error; err != nil {
