@@ -72,3 +72,15 @@ func InitAdmin(db *gorm.DB) error {
 	}
 	return nil
 }
+
+// 关闭数据库连接
+func CloseDB(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	if err := sqlDB.Close(); err != nil {
+		return err
+	}
+	return nil
+}
