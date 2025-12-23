@@ -32,15 +32,16 @@ type User struct {
 }
 
 type BorrowRecord struct {
-	ID         uint `json:"id"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `gorm:"index"`
-	BookID     uint           `json:"book_id" gorm:"column:book_id"`
-	UserID     uint           `json:"user_id" gorm:"column:user_id"`
-	BorrowDate time.Time      `json:"borrow_date"`
-	ReturnDate time.Time      `json:"return_date"`
-	State      string         `json:"state"` //未归还：borrowing, 已归还：returned
+	ID           uint `json:"id"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	BookID       uint           `json:"book_id" gorm:"column:book_id"`
+	UserID       uint           `json:"user_id" gorm:"column:user_id"`
+	BorrowDate   time.Time      `json:"borrow_date"`
+	ReturnDate   time.Time      `json:"return_date"`
+	ShouldReturn time.Time      `json:"should_return"`
+	State        string         `json:"state"` //未归还：borrowing, 已归还：returned
 }
 
 type BookInfo struct {
@@ -56,7 +57,8 @@ type UserInfo struct {
 	UserName   string `json:"username"`
 	Telenum    string `json:"telenum"`
 	IsAdmin    bool   `json:"is_admin"`
-	BorrRecNum int    `json:"borr_rec_num"`
+	NowBorrNum int    `json:"now_borr_num"`
+	OverdueNum int    `json:"overdue_num"`
 }
 
 type Session struct {

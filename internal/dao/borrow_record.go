@@ -18,37 +18,42 @@ func NewBorrowRecordDao(db *gorm.DB) *BorrowRecordDao {
 }
 
 // BorrowBook 借书
-// 成功：借书记录id，nil
-// 失败：0，错误信息
-func (dao *BorrowRecordDao) BorrowBook(bookid uint, userid uint, borrowedAt time.Time) (time.Time, error) {
+// 成功：应还日期，nil
+// 失败：空，错误信息
+func (dao *BorrowRecordDao) BorrowBook(bookid uint, userid uint) (time.Time, error) {
 	var record model.BorrowRecord
 	record.BookID = bookid
 	record.UserID = userid
-	record.BorrowDate = borrowedAt
+	record.BorrowDate = time.Now()
+	record.ReturnDate = time.Time{}
+	record.ShouldReturn = record.BorrowDate.AddDate(0, 0, 7) // 测试借书期限为7天
 	record.State = "borrowing"
 	result := dao.db.Create(&record)
 	if result.Error != nil {
 		return time.Time{}, result.Error
 	}
-	return record.BorrowDate, nil
+	return record.ShouldReturn, nil
 }
 
 // ReturnBook 还书
-// 成功：nil
-// 失败：错误信息
-func (dao *BorrowRecordDao) ReturnBook(recordid uint, returnedAt time.Time) error {
+// 成功：nil, 真为守时，假为逾时
+// 失败：错误信息, 假
+func (dao *BorrowRecordDao) ReturnBook(recordid uint) (error, bool) {
 	var record model.BorrowRecord
 	result := dao.db.First(&record, recordid)
 	if result.Error != nil {
-		return result.Error
+		return result.Error, false
 	}
-	record.ReturnDate = returnedAt
+	record.ReturnDate = time.Now()
 	record.State = "returned"
 	result = dao.db.Save(&record)
 	if result.Error != nil {
-		return result.Error
+		return result.Error, false
 	}
-	return nil
+	if record.ReturnDate.After(record.ShouldReturn) {
+		return nil, false
+	}
+	return nil, true
 }
 
 // FindBorrowRecord 通过ID查找某用户未归还的借书记录

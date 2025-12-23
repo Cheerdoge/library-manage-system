@@ -17,12 +17,14 @@ const (
 )
 
 const (
-	ErrUserAlreadyExists = "用户已存在"
-	ErrUserNotFound      = "用户不存在"
-	ErrPasswordWrong     = "密码错误"
-	ErrInvalidInput      = "无效的输入参数"
-	ErrUnauthorized      = "未授权的操作"
-	ErrForbidden         = "无权限执行此操作"
-	ErrConflict          = "请求与当前资源状态冲突"
-	ErrServerInternal    = "服务器内部错误"
+	ErrUserAlreadyExists        = "用户已存在"
+	ErrUserNotFound             = "用户不存在"
+	ErrPasswordWrong            = "密码错误"
+	ErrInvalidInput             = "无效的输入参数"
+	ErrUnauthorized             = "未授权的操作"
+	ErrForbidden                = "无权限执行此操作"
+	ErrConflict                 = "请求与当前资源状态冲突"
+	ErrServerInternal           = "服务器内部错误"
+	ErrBorrowLimitExceeded      = "已达到最大借书数量限制"
+	ErrUserOverdueLimitExceeded = "用户逾期未还次数过多，无法借书"
 )

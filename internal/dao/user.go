@@ -25,6 +25,7 @@ func (dao *UserDao) Adduser(username string, password string, isadmin bool) (uin
 	user.UserName = username
 	user.Password = password
 	user.IsAdmin = isadmin
+	user.NowBorrNum = 0
 	result := dao.db.Create(&user)
 	if result.Error != nil {
 		return 0, result.Error
@@ -77,7 +78,7 @@ func (dao *UserDao) UpdatePassword(userid uint, newpassword string) error {
 // UpdataUserInfo 更新用户信息
 // 成功：nil
 // 失败：错误信息
-func (dao *UserDao) UpdateUserInfo(userid uint, username string, telenum string) error {
+func (dao *UserDao) UpdateUserInfo(userid uint, username string, telenum string, overdueNum int) error {
 	var user *model.User
 	user, err := dao.FindUserById(userid)
 	if err != nil {
@@ -85,6 +86,7 @@ func (dao *UserDao) UpdateUserInfo(userid uint, username string, telenum string)
 	}
 	user.UserName = username
 	user.Telenum = telenum
+	user.OverdueNum = overdueNum
 	result := dao.db.Save(user)
 	if result.Error != nil {
 		return result.Error
@@ -127,7 +129,8 @@ func (dao *UserDao) GetAllUsers() ([]model.UserInfo, error) {
 			UserName:   user.UserName,
 			Telenum:    user.Telenum,
 			IsAdmin:    user.IsAdmin,
-			BorrRecNum: user.NowBorrNum,
+			NowBorrNum: user.NowBorrNum,
+			OverdueNum: user.OverdueNum,
 		}
 		userinfos = append(userinfos, userinfo)
 	}
