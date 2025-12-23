@@ -107,7 +107,7 @@ func (dao *BookDao) UpdateBook(bookid uint, sum_num int) error {
 // GetAllBooks 获取所有图书
 // 成功：图书切片，nil
 // 失败：nil，错误信息
-func (dao *BookDao) GetAllBooks() ([]model.BookInfo, error) {
+func (dao *BookDao) FindAllBooks() ([]model.BookInfo, error) {
 	var books []model.BookInfo
 	var bookModels []model.Book
 	result := dao.db.Find(&bookModels)
@@ -130,7 +130,7 @@ func (dao *BookDao) GetAllBooks() ([]model.BookInfo, error) {
 // GetAvailableBooks 获取所有可借图书
 // 成功：图书切片，nil
 // 失败：nil，错误信息
-func (dao *BookDao) GetAvailableBooks() ([]model.BookInfo, error) {
+func (dao *BookDao) FindAvailableBooks() ([]model.BookInfo, error) {
 	var books []model.BookInfo
 	var bookModels []model.Book
 	result := dao.db.Where("now_num > ?", 0).Find(&bookModels)

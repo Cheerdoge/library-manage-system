@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 )
 
@@ -11,7 +13,8 @@ type BookRepository interface {
 	AddBooks(newbooks []*model.Book) ([]uint, error)
 	DelBook(book *model.Book) error
 	UpdateBook(bookid uint, sum_num int) error
-	GetAllBooks() ([]model.Book, error)
+	FindAllBooks() ([]model.Book, error)
+	FindAvailableBooks() ([]model.BookInfo, error)
 }
 
 type BookService struct {
@@ -27,14 +30,15 @@ func NewBookService(repo BookRepository) *BookService {
 // GetAllBooks 获取所有图书
 // 图书列表为空则失败
 func (s *BookService) GetAllBooks() (booklist []model.Book, message string) {
-	booklist, err := s.repo.GetAllBooks()
+	booklist, err := s.repo.FindAllBooks()
 	if err != nil {
 		return nil, "获取图书列表失败:" + err.Error()
 	}
 	return booklist, ""
 }
 
-func (s *BookService) FindBookById(ID uint) (book *model.Book, message string) {
+// GetBokkById 通过Id查找图书
+func (s *BookService) GetBookById(ID uint) (book *model.Book, message string) {
 	book, err := s.repo.FindBookById(ID)
 	if err != nil {
 		return nil, "查找图书失败:" + err.Error()
@@ -42,7 +46,8 @@ func (s *BookService) FindBookById(ID uint) (book *model.Book, message string) {
 	return book, ""
 }
 
-func (s *BookService) FindBookByName(name string) (book *model.Book, message string) {
+// GetBookByName 通过名称查找图书
+func (s *BookService) GetBookByName(name string) (book *model.Book, message string) {
 	book, err := s.repo.FindBookByName(name)
 	if err != nil {
 		return nil, "查找图书失败:" + err.Error()
@@ -50,7 +55,8 @@ func (s *BookService) FindBookByName(name string) (book *model.Book, message str
 	return book, ""
 }
 
-func (s *BookService) FindAvailableBookByName(name string) (book *model.Book, message string) {
+// GetAvailableBooksByName 通过名称查找可借阅图书
+func (s *BookService) GetAvailableBooksByName(name string) (book *model.Book, message string) {
 	book, err := s.repo.FindBookByName(name)
 	if err != nil {
 		return nil, "查找可借阅图书失败:" + err.Error()
@@ -58,5 +64,57 @@ func (s *BookService) FindAvailableBookByName(name string) (book *model.Book, me
 	if book.NowNum <= 0 {
 		return nil, "图书暂无库存"
 	}
-	return book, ""
+	return book, "当前库存：" + fmt.Sprint(book.NowNum)
+}
+
+// GetAvailableBooks 获取所有可借图书
+func (s *BookService) GetAvailableBooks() (booklist []model.BookInfo, message string) {
+	booklist, err := s.repo.FindAvailableBooks()
+	if err != nil {
+		return nil, "获取可借图书列表失败:" + err.Error()
+	}
+	return booklist, ""
+}
+
+// NewBook 新增图书
+func (s *BookService) NewBook(bookname string, author string, sum_num int) (bookid uint, message string) {
+	bookid, err := s.repo.AddBook(bookname, author, sum_num)
+	if err != nil {
+		return 0, "新增图书失败:" + err.Error()
+	}
+	return bookid, ""
+}
+
+// NewBooks 新增多本图书
+func (s *BookService) NewBooks(newbooks []*model.Book) (bookidlist []uint, message string) {
+	bookidlist, err := s.repo.AddBooks(newbooks)
+	if err != nil {
+		return nil, "新增图书失败:" + err.Error()
+	}
+
+	return bookidlist, ""
+}
+
+// RemoveBook 删除图书
+// bool值表示是否成功
+func (s *BookService) RemoveBook(bookid uint) (ok bool, message string) {
+	book, err := s.repo.FindBookById(bookid)
+	if err != nil {
+		return false, "删除图书失败,原因:查找图书失败:" + err.Error()
+	}
+	err = s.repo.DelBook(book)
+	if err != nil {
+		return false, "删除图书失败:" + err.Error()
+	}
+	return true, ""
+}
+
+// ModifyBook 更新图书信息,主要用做数量更新
+// bool值表示是否成功
+func (s *BookService) ModifyBook(bookid uint, sum_num int) (ok bool, message string) {
+	err := s.repo.UpdateBook(bookid, sum_num)
+	if err != nil {
+		return false, "更新图书信息失败:" + err.Error()
+	}
+	return true, ""
 }
