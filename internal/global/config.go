@@ -49,11 +49,6 @@ func InitConfig() {
 	cfg.Server.Port = getEnv("SERVER_PORT", "8080")
 	cfg.Server.Env = getEnv("APP_ENV", "dev")
 
-	// JWT 配置
-	cfg.JWT.Secret = getEnv("JWT_SECRET", "change-me-in-production")
-	cfg.JWT.Issuer = getEnv("JWT_ISSUER", "library-system")
-	cfg.JWT.Expires = parseInt(getEnv("JWT_EXPIRES", "86400"))
-
 	AppConfig = cfg
 
 	// 日志输出（不含密码）

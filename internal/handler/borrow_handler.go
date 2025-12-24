@@ -69,6 +69,10 @@ func (h *BorrowHandler) GetUserBorrowRecordsHandler(c *gin.Context) {
 		web.FailWithMessage(c, msg)
 		return
 	}
+	if len(records) == 0 {
+		web.OkWithMessage(c, "暂无未归还的借书记录")
+		return
+	}
 	web.OkWithData(c, records)
 }
 
