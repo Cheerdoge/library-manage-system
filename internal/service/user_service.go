@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Cheerdoge/library-manage-system/internal/model"
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
@@ -12,6 +13,7 @@ type UserRepository interface {
 	FindUserByName(name string) (*model.User, error)
 	DeleUser(userid uint) error
 	GetAllUsers() ([]model.UserInfo, error)
+	ModifyUserNum(tx *gorm.DB, userid uint, borrowChange int, overdueChange int) error
 }
 
 type UserService struct {

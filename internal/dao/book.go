@@ -89,14 +89,15 @@ func (dao *BookDao) DelBook(book *model.Book) error {
 // UpdateBook 更新图书信息,主要用做数量更新
 // 成功：nil
 // 失败：错误信息
-func (dao *BookDao) UpdateBook(bookid uint, sum_num int) error {
+func (dao *BookDao) UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error {
 	var book *model.Book
 	book, err := dao.FindBookById(bookid)
 	if err != nil {
 		return errors.New("书籍不存在")
 	}
-	book.SumNum = sum_num
-	book.NowNum = sum_num - book.BorrNum
+	book.SumNum = book.SumNum + change_num
+	book.BorrNum = book.BorrNum + bor_num - return_num
+	book.NowNum = book.SumNum - book.BorrNum
 	result := dao.db.Save(book)
 	if result.Error != nil {
 		return result.Error
@@ -149,4 +150,13 @@ func (dao *BookDao) FindAvailableBooks() ([]model.BookInfo, error) {
 
 	}
 	return books, nil
+}
+
+// ModifyStore 配合事务的库存修改
+func (dao *BookDao) ModifyStore(tx *gorm.DB, bookid uint, num int) error {
+	result := tx.Model(&model.Book{}).Where("id = ?", bookid).Update("now_num", gorm.Expr("now_num + ?", num))
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

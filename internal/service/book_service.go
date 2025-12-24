@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Cheerdoge/library-manage-system/internal/model"
+	"gorm.io/gorm"
 )
 
 type BookRepository interface {
@@ -12,9 +13,10 @@ type BookRepository interface {
 	AddBook(bookname string, author string, sum_num int) (uint, error)
 	AddBooks(newbooks []*model.Book) ([]uint, error)
 	DelBook(book *model.Book) error
-	UpdateBook(bookid uint, sum_num int) error
+	UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error
 	FindAllBooks() ([]model.Book, error)
 	FindAvailableBooks() ([]model.BookInfo, error)
+	ModifyStore(tx *gorm.DB, bookid uint, num int) error
 }
 
 type BookService struct {
@@ -111,8 +113,8 @@ func (s *BookService) RemoveBook(bookid uint) (ok bool, message string) {
 
 // ModifyBook 更新图书信息,主要用做数量更新
 // bool值表示是否成功
-func (s *BookService) ModifyBook(bookid uint, sum_num int) (ok bool, message string) {
-	err := s.repo.UpdateBook(bookid, sum_num)
+func (s *BookService) ModifyBook(bookid uint, change_num int, bor_num int, return_num int) (ok bool, message string) {
+	err := s.repo.UpdateBook(bookid, change_num, bor_num, return_num)
 	if err != nil {
 		return false, "更新图书信息失败:" + err.Error()
 	}

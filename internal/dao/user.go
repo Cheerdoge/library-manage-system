@@ -50,7 +50,7 @@ func (dao *UserDao) FindUserById(Id uint) (*model.User, error) {
 // 失败：nil，错误信息
 func (dao *UserDao) FindUserByName(name string) (*model.User, error) {
 	var user model.User
-	result := dao.db.Where("name = ?", name).First(&user)
+	result := dao.db.Where("user_name = ?", name).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -135,4 +135,16 @@ func (dao *UserDao) GetAllUsers() ([]model.UserInfo, error) {
 		userinfos = append(userinfos, userinfo)
 	}
 	return userinfos, nil
+}
+
+// ModifyUserNum 修改用户的借书数、违规数
+func (dao *UserDao) ModifyUserNum(tx *gorm.DB, userid uint, borrowChange int, overdueChange int) error {
+	result := tx.Model(&model.User{}).Where("id = ?", userid).Updates(map[string]interface{}{
+		"now_borr_num": gorm.Expr("now_borr_num + ?", borrowChange),
+		"overdue_num":  gorm.Expr("overdue_num + ?", overdueChange),
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

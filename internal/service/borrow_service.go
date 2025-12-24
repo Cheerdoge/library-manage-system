@@ -4,23 +4,26 @@ import (
 	"time"
 
 	"github.com/Cheerdoge/library-manage-system/internal/model"
+	"gorm.io/gorm"
 )
 
 type BorrowRepository interface {
-	BorrowBook(bookid uint, userid uint) (time.Time, error)
-	ReturnBook(recordid uint) (error, bool)
+	Create(db *gorm.DB, record *model.BorrowRecord) error
+	ReturnBook(db *gorm.DB, recordid uint) error
 	FindBorrowRecord(userid uint) ([]model.BorrowRecord, error)
 	FindAllBorrowRecords() ([]model.BorrowRecord, error)
 }
 
 type BorrowService struct {
+	db          *gorm.DB
 	borrowrepo  BorrowRepository
 	userservice *UserService
 	bookservice *BookService
 }
 
-func NewBorrowService(repo BorrowRepository, userservice *UserService, bookservice *BookService) *BorrowService {
+func NewBorrowService(db *gorm.DB, repo BorrowRepository, userservice *UserService, bookservice *BookService) *BorrowService {
 	return &BorrowService{
+		db:          db,
 		borrowrepo:  repo,
 		userservice: userservice,
 		bookservice: bookservice,
@@ -29,7 +32,7 @@ func NewBorrowService(repo BorrowRepository, userservice *UserService, bookservi
 
 // Borrow 借书
 // 失败返回空和错误信息
-func (s *BorrowService) Borrow(bookid uint, userid uint) (shouldreturn time.Time, message string) {
+func (s *BorrowService) Borrow(bookid uint, userid uint, booknum int) (shouldreturn time.Time, message string) {
 	user, err := s.userservice.userrepo.FindUserById(userid)
 	if err != nil {
 		return time.Time{}, model.ErrUserNotFound
@@ -40,17 +43,47 @@ func (s *BorrowService) Borrow(bookid uint, userid uint) (shouldreturn time.Time
 	if user.OverdueNum > 3 {
 		return time.Time{}, model.ErrUserOverdueLimitExceeded
 	}
-	shouldreturn, err = s.borrowrepo.BorrowBook(bookid, userid)
+	book, err := s.bookservice.repo.FindBookById(bookid)
 	if err != nil {
-		return time.Time{}, err.Error()
+		return time.Time{}, "查找图书失败:" + err.Error()
+	}
+	if book.NowNum < booknum {
+		return time.Time{}, "图书库存不足"
+	}
+	shouldreturn = time.Now().AddDate(0, 0, 7) // 测试借书期限为7天
+	record := &model.BorrowRecord{
+		BookID:       bookid,
+		UserID:       userid,
+		BookNum:      booknum,
+		BorrowDate:   time.Now(),
+		ShouldReturn: shouldreturn,
+		State:        "borrowing",
+	}
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		err := s.bookservice.repo.ModifyStore(tx, bookid, -booknum)
+		if err != nil {
+			return err
+		}
+		err = s.borrowrepo.Create(tx, record)
+		if err != nil {
+			return err
+		}
+		err = s.userservice.userrepo.ModifyUserNum(tx, userid, booknum, 0)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return time.Time{}, "借书失败:" + err.Error()
 	}
 	return shouldreturn, ""
 }
 
 // Return 还书
-// 成功：真为守时，假为逾时，“”
+// 成功：真为守时，假为逾时，“”,判定是否有错误信息来判断是否操作成功
 func (s *BorrowService) Return(userid uint, bookid uint) (isontime bool, message string) {
-	user, err := s.userservice.userrepo.FindUserById(userid)
+	_, err := s.userservice.userrepo.FindUserById(userid)
 	if err != nil {
 		return false, model.ErrUserNotFound
 	}
@@ -68,14 +101,27 @@ func (s *BorrowService) Return(userid uint, bookid uint) (isontime bool, message
 	if targetrecord == nil {
 		return false, "未找到对应的借书记录"
 	}
-	err, isontime = s.borrowrepo.ReturnBook(targetrecord.ID)
-	if err != nil {
-		return false, err.Error()
-	}
-	if !isontime {
-		user.OverdueNum++
-		s.userservice.userrepo.UpdateUserInfo(user.ID, user.UserName, user.Telenum, user.OverdueNum)
-	}
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		err := s.borrowrepo.ReturnBook(tx, targetrecord.ID)
+		if err != nil {
+			return err
+		}
+		err = s.bookservice.repo.ModifyStore(tx, bookid, targetrecord.BookNum)
+		if err != nil {
+			return err
+		}
+		if time.Now().After(targetrecord.ShouldReturn) {
+			err = s.userservice.userrepo.ModifyUserNum(tx, userid, -targetrecord.BookNum, 1)
+			isontime = false
+		} else {
+			err = s.userservice.userrepo.ModifyUserNum(tx, userid, -targetrecord.BookNum, 0)
+			isontime = true
+		}
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	return isontime, ""
 }
 

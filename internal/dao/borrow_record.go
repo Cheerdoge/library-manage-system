@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Cheerdoge/library-manage-system/internal/model"
@@ -20,40 +21,27 @@ func NewBorrowRecordDao(db *gorm.DB) *BorrowRecordDao {
 // BorrowBook 借书
 // 成功：应还日期，nil
 // 失败：空，错误信息
-func (dao *BorrowRecordDao) BorrowBook(bookid uint, userid uint) (time.Time, error) {
-	var record model.BorrowRecord
-	record.BookID = bookid
-	record.UserID = userid
-	record.BorrowDate = time.Now()
-	record.ReturnDate = time.Time{}
-	record.ShouldReturn = record.BorrowDate.AddDate(0, 0, 7) // 测试借书期限为7天
-	record.State = "borrowing"
-	result := dao.db.Create(&record)
-	if result.Error != nil {
-		return time.Time{}, result.Error
-	}
-	return record.ShouldReturn, nil
+func (dao *BorrowRecordDao) Create(db *gorm.DB, record *model.BorrowRecord) error {
+	return db.Create(record).Error
 }
 
 // ReturnBook 还书
-// 成功：nil, 真为守时，假为逾时
-// 失败：错误信息, 假
-func (dao *BorrowRecordDao) ReturnBook(recordid uint) (error, bool) {
-	var record model.BorrowRecord
-	result := dao.db.First(&record, recordid)
+// 成功：真，nil
+func (dao *BorrowRecordDao) ReturnBook(db *gorm.DB, recordid uint) error {
+	result := db.Model(&model.BorrowRecord{}).
+		Where("id = ? AND state = ?", recordid, "borrowing").
+		Updates(map[string]interface{}{
+			"state":     "returned",
+			"return_at": time.Now(),
+		})
+
 	if result.Error != nil {
-		return result.Error, false
+		return result.Error
 	}
-	record.ReturnDate = time.Now()
-	record.State = "returned"
-	result = dao.db.Save(&record)
-	if result.Error != nil {
-		return result.Error, false
+	if result.RowsAffected == 0 {
+		return errors.New("未找到对应的借书记录或该记录已归还")
 	}
-	if record.ReturnDate.After(record.ShouldReturn) {
-		return nil, false
-	}
-	return nil, true
+	return nil
 }
 
 // FindBorrowRecord 通过ID查找某用户未归还的借书记录

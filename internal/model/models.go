@@ -38,6 +38,7 @@ type BorrowRecord struct {
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 	BookID       uint           `json:"book_id" gorm:"column:book_id"`
 	UserID       uint           `json:"user_id" gorm:"column:user_id"`
+	BookNum      int            `json:"book_num"`
 	BorrowDate   time.Time      `json:"borrow_date"`
 	ReturnDate   time.Time      `json:"return_date"`
 	ShouldReturn time.Time      `json:"should_return"`
