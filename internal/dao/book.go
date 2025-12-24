@@ -20,27 +20,41 @@ func NewBookDao(db *gorm.DB) *BookDao {
 // FindBookById 通过ID查找图书
 // 成功：书指针，nil
 // 失败：nil，错误信息
-func (dao *BookDao) FindBookById(ID uint) (*model.Book, error) {
+func (dao *BookDao) FindBookById(ID uint) (*model.BookInfo, error) {
 	var book model.Book
 	//根据id查询，并把结果填入book
 	result := dao.db.First(&book, ID)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &book, nil
+	return &model.BookInfo{
+		ID:       book.ID,
+		Bookname: book.Bookname,
+		Author:   book.Author,
+		SumNum:   book.SumNum,
+		BorrNum:  book.BorrNum,
+		NowNum:   book.NowNum,
+	}, nil
 }
 
 // FindBookByName 通过名称查找图书
 // 成功：书指针，nil
 // 失败：nil，错误信息
-func (dao *BookDao) FindBookByName(name string) (*model.Book, error) {
+func (dao *BookDao) FindBookByName(name string) (*model.BookInfo, error) {
 	var book model.Book
 	//根据name查询，并把结果填入book
 	result := dao.db.First(&book, "bookname = ?", name)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &book, nil
+
+	return &model.BookInfo{
+		ID:       book.ID,
+		Bookname: book.Bookname,
+		Author:   book.Author,
+		BorrNum:  book.BorrNum,
+		NowNum:   book.NowNum,
+	}, nil
 }
 
 // AddBook 新增单个图书
@@ -78,8 +92,8 @@ func (dao *BookDao) AddBooks(newbooks []*model.Book) ([]uint, error) {
 // DelBook 删除图书
 // 成功：nil
 // 失败：错误信息
-func (dao *BookDao) DelBook(book *model.Book) error {
-	result := dao.db.Delete(book)
+func (dao *BookDao) DelBook(bookid uint) error {
+	result := dao.db.Delete(&model.Book{}, bookid)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -90,7 +104,7 @@ func (dao *BookDao) DelBook(book *model.Book) error {
 // 成功：nil
 // 失败：错误信息
 func (dao *BookDao) UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error {
-	var book *model.Book
+	var book *model.BookInfo
 	book, err := dao.FindBookById(bookid)
 	if err != nil {
 		return errors.New("书籍不存在")

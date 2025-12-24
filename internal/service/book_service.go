@@ -8,13 +8,13 @@ import (
 )
 
 type BookRepository interface {
-	FindBookById(ID uint) (*model.Book, error)
-	FindBookByName(name string) (*model.Book, error)
+	FindBookById(ID uint) (*model.BookInfo, error)
+	FindBookByName(name string) (*model.BookInfo, error)
 	AddBook(bookname string, author string, sum_num int) (uint, error)
 	AddBooks(newbooks []*model.Book) ([]uint, error)
-	DelBook(book *model.Book) error
+	DelBook(bookid uint) error
 	UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error
-	FindAllBooks() ([]model.Book, error)
+	FindAllBooks() ([]model.BookInfo, error)
 	FindAvailableBooks() ([]model.BookInfo, error)
 	ModifyStore(tx *gorm.DB, bookid uint, num int) error
 }
@@ -31,7 +31,7 @@ func NewBookService(repo BookRepository) *BookService {
 
 // GetAllBooks 获取所有图书
 // 图书列表为空则失败
-func (s *BookService) GetAllBooks() (booklist []model.Book, message string) {
+func (s *BookService) GetAllBooks() (booklist []model.BookInfo, message string) {
 	booklist, err := s.repo.FindAllBooks()
 	if err != nil {
 		return nil, "获取图书列表失败:" + err.Error()
@@ -39,8 +39,8 @@ func (s *BookService) GetAllBooks() (booklist []model.Book, message string) {
 	return booklist, ""
 }
 
-// GetBokkById 通过Id查找图书
-func (s *BookService) GetBookById(ID uint) (book *model.Book, message string) {
+// GetBookById 通过Id查找图书
+func (s *BookService) GetBookById(ID uint) (book *model.BookInfo, message string) {
 	book, err := s.repo.FindBookById(ID)
 	if err != nil {
 		return nil, "查找图书失败:" + err.Error()
@@ -49,7 +49,7 @@ func (s *BookService) GetBookById(ID uint) (book *model.Book, message string) {
 }
 
 // GetBookByName 通过名称查找图书
-func (s *BookService) GetBookByName(name string) (book *model.Book, message string) {
+func (s *BookService) GetBookByName(name string) (book *model.BookInfo, message string) {
 	book, err := s.repo.FindBookByName(name)
 	if err != nil {
 		return nil, "查找图书失败:" + err.Error()
@@ -58,7 +58,7 @@ func (s *BookService) GetBookByName(name string) (book *model.Book, message stri
 }
 
 // GetAvailableBooksByName 通过名称查找可借阅图书
-func (s *BookService) GetAvailableBooksByName(name string) (book *model.Book, message string) {
+func (s *BookService) GetAvailableBooksByName(name string) (book *model.BookInfo, message string) {
 	book, err := s.repo.FindBookByName(name)
 	if err != nil {
 		return nil, "查找可借阅图书失败:" + err.Error()
@@ -87,24 +87,20 @@ func (s *BookService) NewBook(bookname string, author string, sum_num int) (book
 	return bookid, ""
 }
 
-// NewBooks 新增多本图书
-func (s *BookService) NewBooks(newbooks []*model.Book) (bookidlist []uint, message string) {
-	bookidlist, err := s.repo.AddBooks(newbooks)
-	if err != nil {
-		return nil, "新增图书失败:" + err.Error()
-	}
+// // NewBooks 新增多本图书
+// func (s *BookService) NewBooks(newbooks []*model.Book) (bookidlist []uint, message string) {
+// 	bookidlist, err := s.repo.AddBooks(newbooks)
+// 	if err != nil {
+// 		return nil, "新增图书失败:" + err.Error()
+// 	}
 
-	return bookidlist, ""
-}
+// 	return bookidlist, ""
+// }
 
 // RemoveBook 删除图书
 // bool值表示是否成功
 func (s *BookService) RemoveBook(bookid uint) (ok bool, message string) {
-	book, err := s.repo.FindBookById(bookid)
-	if err != nil {
-		return false, "删除图书失败,原因:查找图书失败:" + err.Error()
-	}
-	err = s.repo.DelBook(book)
+	err := s.repo.DelBook(bookid)
 	if err != nil {
 		return false, "删除图书失败:" + err.Error()
 	}
