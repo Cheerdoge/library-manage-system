@@ -49,6 +49,7 @@ type BookInfo struct {
 	ID       uint   `json:"id"`
 	Bookname string `json:"bookname"`
 	Author   string `json:"author"`
+	SumNum   int    `json:"sum_num"`
 	BorrNum  int    `json:"borr_num"`
 	NowNum   int    `json:"now_num"`
 }
@@ -64,6 +65,7 @@ type UserInfo struct {
 
 type Session struct {
 	ID        uint      `json:"id"`
+	UserName  string    `json:"username"`
 	UserID    uint      `json:"user_id"`
 	IsAdmin   bool      `json:"is_admin"`
 	Token     string    `json:"token"`

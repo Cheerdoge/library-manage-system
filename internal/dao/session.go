@@ -20,9 +20,10 @@ func NewSessionDao(db *gorm.DB) *SessionDao {
 
 // AddSession 创建新session
 // 返回token,有效期30分钟
-func (dao *SessionDao) AddSession(userID uint, IsAdmin bool) (token string, err error) {
+func (dao *SessionDao) AddSession(userID uint, username string, IsAdmin bool) (token string, err error) {
 	var session model.Session
 	session.UserID = userID
+	session.UserName = username
 	session.IsAdmin = IsAdmin
 	token = fmt.Sprintf("session-%d-%d", userID, time.Now().UnixNano())
 	session.ExpiresAt = time.Now().Add(30 * time.Minute)

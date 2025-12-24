@@ -7,7 +7,7 @@ import (
 )
 
 type SessionRepository interface {
-	AddSession(userID uint, IsAdmin bool) (string, error)
+	AddSession(userID uint, username string, IsAdmin bool) (token string, err error)
 	FindSessionByToken(token string) (*model.Session, error)
 	DeleteSessionByToken(token string) error
 	FindSessionByUserId(userId uint) (*model.Session, error)
@@ -24,8 +24,8 @@ func NewSessionService(repo SessionRepository) *SessionService {
 }
 
 // CreateSession 创建新session并返回token
-func (s *SessionService) CreateSession(userId uint, IsAdmin bool) (token string, messsage string) {
-	token, err := s.repo.AddSession(userId, IsAdmin)
+func (s *SessionService) CreateSession(userId uint, username string, IsAdmin bool) (token string, messsage string) {
+	token, err := s.repo.AddSession(userId, username, IsAdmin)
 	if err != nil {
 		return "", "创建session失败:" + err.Error()
 	}
@@ -43,4 +43,17 @@ func (s *SessionService) CheckSessionByToken(token string) (session *model.Sessi
 		return nil, "session已过期"
 	}
 	return session, ""
+}
+
+// DelSessionByToken 通过token删除session
+func (s *SessionService) DelSessionByToken(token string) (message string) {
+	_, err := s.repo.FindSessionByToken(token)
+	if err != nil {
+		return "session不存在:" + err.Error()
+	}
+	err = s.repo.DeleteSessionByToken(token)
+	if err != nil {
+		return "删除session失败:" + err.Error()
+	}
+	return ""
 }
