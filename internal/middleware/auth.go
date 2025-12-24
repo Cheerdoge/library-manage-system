@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"strings"
+	"time"
 
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 	"github.com/Cheerdoge/library-manage-system/internal/service"
@@ -9,28 +9,47 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jwtService = service.NewJWTService()
+const SessionDuration = 30 * time.Minute // Session有效期为7天
 
-func AuthMiddleware(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.AbortWithStatusJSON(model.CodeUnauthorized, web.ErrorResponse(model.CodeUnauthorized, "没有令牌"))
-		return
-	}
+func AuthMiddleware(sessionservice *service.SessionService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := c.Cookie("session_token")
+		if err != nil {
+			web.Fail(c, model.CodeUnauthorized, "请先登录")
+			c.Abort()
+			return
+		}
 
-	// 解析 Bearer 前缀
-	parts := strings.SplitN(authHeader, " ", 2)
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		c.AbortWithStatusJSON(model.CodeUnauthorized, web.ErrorResponse(model.CodeUnauthorized, "Authorization 格式错误，应为 Bearer <token>"))
-		return
-	}
+		session, msg := sessionservice.CheckSessionByToken(token)
+		if msg != "" {
+			web.Fail(c, model.CodeUnauthorized, msg)
+			c.Abort()
+			return
+		}
 
-	token := parts[1]
-	principal, err := jwtService.ParseToken(token)
-	if err != nil {
-		c.AbortWithStatusJSON(model.CodeUnauthorized, web.ErrorResponse(model.CodeUnauthorized, "令牌无效: "+err.Error()))
-		return
+		principal := &model.Principal{
+			UserID:   session.UserID,
+			UserName: session.UserName,
+			IsAdmin:  session.IsAdmin,
+		}
+		c.Set("principal", principal)
+		c.Next()
 	}
-	c.Set("principal", principal) //注入上下文
-	c.Next()
+}
+
+func AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		principal, err := model.GetPrincipal(c)
+		if err != nil {
+			web.Fail(c, model.CodeUnauthorized, "无法获取用户信息")
+			c.Abort()
+			return
+		}
+		if !principal.IsAdmin {
+			web.Fail(c, model.CodeForbidden, "权限不足")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }
