@@ -26,7 +26,7 @@ func RegisterRoutes(
 	authGroup := r.Group("/api")
 	authGroup.Use(middleware.AuthMiddleware(sessionservice))
 	{
-		authGroup.POST("/logout", authhandler.LogoutHandler)
+		authGroup.GET("/logout", authhandler.LogoutHandler)
 		authGroup.POST("/user/del", authhandler.DelHandler)
 		authGroup.GET("/user", userhandler.GetUserInfoHandler)
 		authGroup.POST("/user/change_password", userhandler.UserChangePasswordHandler)
