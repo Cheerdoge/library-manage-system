@@ -67,3 +67,13 @@ func (dao *BorrowRecordDao) FindAllBorrowRecords() ([]model.BorrowRecord, error)
 	}
 	return records, nil
 }
+
+// FindBorrowRecordById 通过借书记录ID查找借书记录
+func (dao *BorrowRecordDao) FindBorrowRecordById(recordid uint) (*model.BorrowRecord, error) {
+	var record model.BorrowRecord
+	result := dao.db.First(&record, "id = ?", recordid)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &record, nil
+}

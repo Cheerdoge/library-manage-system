@@ -12,6 +12,7 @@ type BorrowRepository interface {
 	ReturnBook(db *gorm.DB, recordid uint) error
 	FindBorrowRecord(userid uint) ([]model.BorrowRecord, error)
 	FindAllBorrowRecords() ([]model.BorrowRecord, error)
+	FindBorrowRecordById(recordid uint) (*model.BorrowRecord, error)
 }
 
 type BorrowService struct {
@@ -82,21 +83,11 @@ func (s *BorrowService) Borrow(bookid uint, userid uint, booknum int) (shouldret
 
 // Return 还书
 // 成功：真为守时，假为逾时，“”,判定是否有错误信息来判断是否操作成功
-func (s *BorrowService) Return(userid uint, bookid uint) (isontime bool, message string) {
-	_, err := s.userservice.userrepo.FindUserById(userid)
-	if err != nil {
-		return false, model.ErrUserNotFound
-	}
-	records, err := s.borrowrepo.FindBorrowRecord(userid)
-	if err != nil {
-		return false, "获取借书记录失败:" + err.Error()
-	}
+func (s *BorrowService) Return(recordid uint) (isontime bool, message string) {
 	var targetrecord *model.BorrowRecord
-	for _, record := range records {
-		if record.BookID == bookid && record.State == "borrowing" {
-			targetrecord = &record
-			break
-		}
+	targetrecord, err := s.borrowrepo.FindBorrowRecordById(recordid)
+	if err != nil {
+		return false, "查找借书记录失败:" + err.Error()
 	}
 	if targetrecord == nil {
 		return false, "未找到对应的借书记录"
@@ -106,15 +97,15 @@ func (s *BorrowService) Return(userid uint, bookid uint) (isontime bool, message
 		if err != nil {
 			return err
 		}
-		err = s.bookservice.repo.ModifyStore(tx, bookid, targetrecord.BookNum)
+		err = s.bookservice.repo.ModifyStore(tx, targetrecord.BookID, targetrecord.BookNum)
 		if err != nil {
 			return err
 		}
 		if time.Now().After(targetrecord.ShouldReturn) {
-			err = s.userservice.userrepo.ModifyUserNum(tx, userid, -targetrecord.BookNum, 1)
+			err = s.userservice.userrepo.ModifyUserNum(tx, targetrecord.UserID, -targetrecord.BookNum, 1)
 			isontime = false
 		} else {
-			err = s.userservice.userrepo.ModifyUserNum(tx, userid, -targetrecord.BookNum, 0)
+			err = s.userservice.userrepo.ModifyUserNum(tx, targetrecord.UserID, -targetrecord.BookNum, 0)
 			isontime = true
 		}
 		if err != nil {
@@ -139,7 +130,7 @@ func (s *BorrowService) GetUserBorrowRecords(userid uint) (records []model.Borro
 	return records, ""
 }
 
-// GetAllBorrowRecords 获取所有用户未归还的借书记录,管理员专属
+// GetAllBorrowRecords 获取所有状态为未归还的借书记录,管理员专属
 // 成功：借书记录切片，“”
 // 失败：nil，错误信息
 func (s *BorrowService) GetAllBorrowRecords(isadmin bool) (records []model.BorrowRecord, message string) {

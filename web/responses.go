@@ -35,7 +35,7 @@ func Fail(c *gin.Context, code int, message string) {
 }
 
 func FailWithMessage(c *gin.Context, message string) {
-	Fail(c, 500, message)
+	Fail(c, 400, message)
 }
 
 func FailWithCode(c *gin.Context, code int) {
