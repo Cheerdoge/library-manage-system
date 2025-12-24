@@ -84,8 +84,12 @@ func (dao *UserDao) UpdateUserInfo(userid uint, username string, telenum string,
 	if err != nil {
 		return errors.New("用户不存在")
 	}
-	user.UserName = username
-	user.Telenum = telenum
+	if username != "" {
+		user.UserName = username
+	}
+	if telenum != "" {
+		user.Telenum = telenum
+	}
 	user.OverdueNum = overdueNum
 	result := dao.db.Save(user)
 	if result.Error != nil {
