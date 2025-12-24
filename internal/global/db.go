@@ -42,6 +42,7 @@ func InitDB() (*gorm.DB, error) {
 		&model.User{},
 		&model.Book{},
 		&model.BorrowRecord{},
+		&model.Session{},
 	); err != nil {
 		return nil, err
 	}

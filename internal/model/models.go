@@ -20,7 +20,7 @@ type Book struct {
 
 type User struct {
 	ID         uint   `json:"id"`
-	UserName   string `json:"username"`
+	UserName   string `json:"username" gorm:"column:username"`
 	Password   string `json:"-"`
 	Telenum    string `json:"telenum"`
 	NowBorrNum int    `json:"now_borr_num"`

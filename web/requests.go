@@ -10,13 +10,13 @@ type AddBook struct {
 }
 
 //查找图书请求
-type FindBook struct {
-	Bookname string `json:"bookname"`
-}
+// type FindBook struct {
+// 	Bookname string `json:"bookname"`
+// }
 
-type FindBookById struct {
-	BookId uint `json:"bookid"`
-}
+// type FindBookById struct {
+// 	BookId uint `json:"bookid"`
+// }
 
 //删除图书请求，分部分和全部
 type DelBook struct {

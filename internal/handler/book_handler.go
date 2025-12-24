@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/Cheerdoge/library-manage-system/internal/service"
 	"github.com/Cheerdoge/library-manage-system/web"
 	"github.com/gin-gonic/gin"
@@ -16,8 +18,30 @@ func NewBookHandler(bookservice *service.BookService) *BookHandler {
 	}
 }
 
-// GetBooksHandler 获取所有书籍信息
+// GetBooksHandler 获取所有书籍信息，支持通过name查询，支持查询可借图书
 func (h *BookHandler) GetBooksHandler(c *gin.Context) {
+	if c.Query("available") == "true" {
+		booklist, msg := h.bookservice.GetAvailableBooks()
+		if msg != "" {
+			web.FailWithMessage(c, msg)
+			return
+		}
+		web.OkWithData(c, booklist)
+		return
+	}
+
+	name := c.Query("name")
+	if name != "" {
+		book, msg := h.bookservice.GetBookByName(name)
+		if msg != "" {
+			web.FailWithMessage(c, msg)
+			return
+		}
+		// 保持返回结构一致，列表形式
+		web.OkWithData(c, []interface{}{book})
+		return
+	}
+
 	booklist, msg := h.bookservice.GetAllBooks()
 	if msg != "" {
 		web.FailWithMessage(c, msg)
@@ -26,31 +50,21 @@ func (h *BookHandler) GetBooksHandler(c *gin.Context) {
 	web.OkWithData(c, booklist)
 }
 
-// GetBookByNameHandler 通过name获取书籍信息
-func (h *BookHandler) GetBookByNameHandler(c *gin.Context) {
-	var req web.FindBook
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		web.FailWithMessage(c, "请求参数有误")
-		return
-	}
-	book, msg := h.bookservice.GetBookByName(req.Bookname)
-	if msg != "" {
-		web.FailWithMessage(c, msg)
-		return
-	}
-	web.OkWithData(c, book)
-}
-
-// GetBookByIdHandler 通过ID获取书籍信息 真的会有人用ID查书吗
+// GetBookByIdHandler 通过ID获取书籍信息
 func (h *BookHandler) GetBookByIdHandler(c *gin.Context) {
-	var req web.FindBookById
-	err := c.ShouldBindJSON(&req)
+	// var req web.FindBookById
+	// err := c.ShouldBindJSON(&req)
+	// if err != nil {
+	// 	web.FailWithMessage(c, "请求参数有误")
+	// 	return
+	// }
+	stringid := c.Param("id")
+	id, err := strconv.ParseUint(stringid, 10, 0)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
-	book, msg := h.bookservice.GetBookById(req.BookId)
+	book, msg := h.bookservice.GetBookById(uint(id))
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
@@ -60,28 +74,19 @@ func (h *BookHandler) GetBookByIdHandler(c *gin.Context) {
 
 // DeleteBookHandler 删除图书
 func (h *BookHandler) DeleteBookHandler(c *gin.Context) {
-	var req web.DelBook
-	err := c.ShouldBindJSON(&req)
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		web.FailWithMessage(c, "请求参数有误")
+		web.FailWithMessage(c, "ID参数错误")
 		return
 	}
-	ok, msg := h.bookservice.RemoveBook(req.Id)
+
+	ok, msg := h.bookservice.RemoveBook(uint(id))
 	if !ok {
 		web.FailWithMessage(c, msg)
 		return
 	}
 	web.OkWithMessage(c, "删除图书成功")
-}
-
-// GetAvailableBooksHandler 获取所有可借图书信息
-func (h *BookHandler) GetAvailableBooksHandler(c *gin.Context) {
-	booklist, msg := h.bookservice.GetAvailableBooks()
-	if msg != "" {
-		web.FailWithMessage(c, msg)
-		return
-	}
-	web.OkWithData(c, booklist)
 }
 
 // 新增图书 AddBookHandler 返回新增图书的id
@@ -125,15 +130,22 @@ func (h *BookHandler) AddBookHandler(c *gin.Context) {
 // 	web.OkWithData(c, gin.H{"bookids": bookids})
 // }
 
-// 更新图书数量 UpdateBookHandler
+// UpdateBookHandler 更新图书数量
 func (h *BookHandler) UpdateBookHandler(c *gin.Context) {
-	var req web.UpdateBook
-	err := c.ShouldBindJSON(&req)
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
+		web.FailWithMessage(c, "ID参数错误")
+		return
+	}
+
+	var req web.UpdateBook
+	if err := c.ShouldBindJSON(&req); err != nil {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
-	ok, msg := h.bookservice.ModifyBook(req.Id, req.Num, 0, 0)
+
+	ok, msg := h.bookservice.ModifyBook(uint(id), req.Num, 0, 0)
 	if !ok {
 		web.FailWithMessage(c, msg)
 		return

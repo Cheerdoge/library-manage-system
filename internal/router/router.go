@@ -19,9 +19,8 @@ func RegisterRoutes(
 	{
 		publicGroup.POST("/login", authhandler.LoginHandler)
 		publicGroup.POST("/register", authhandler.RegisterUserHandler)
-		publicGroup.GET("/book", bookhandler.GetBooksHandler)
-		publicGroup.POST("/book/byname", bookhandler.GetBookByNameHandler)
-		publicGroup.POST("/book/byid", bookhandler.GetBookByIdHandler)
+		publicGroup.GET("/books", bookhandler.GetBooksHandler)
+		publicGroup.GET("/books/:id", bookhandler.GetBookByIdHandler)
 	}
 
 	authGroup := r.Group("/api")
@@ -48,9 +47,9 @@ func RegisterRoutes(
 			adminGroup.POST("/users/delete", authhandler.DelHandler)
 
 			// 图书管理
-			adminGroup.POST("/books/add", bookhandler.AddBookHandler)
-			adminGroup.POST("/books/update", bookhandler.UpdateBookHandler)
-			adminGroup.POST("/books/delete", bookhandler.DeleteBookHandler)
+			adminGroup.POST("/books", bookhandler.AddBookHandler)
+			adminGroup.PUT("/books/:id", bookhandler.UpdateBookHandler)
+			adminGroup.DELETE("/books/:id", bookhandler.DeleteBookHandler)
 
 			// 借阅管理
 			adminGroup.GET("/borrow_records", borrowhandler.GetAllBorrowRecordsHandler)
