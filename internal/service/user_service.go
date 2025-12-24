@@ -129,9 +129,6 @@ func (s *UserService) WithdrawUser(isadmin bool, username string, password strin
 		return model.ErrUserNotFound
 	}
 	if !isadmin {
-		if username != user.UserName {
-			return model.ErrForbidden
-		}
 		if user.Password != password {
 			return model.ErrPasswordWrong
 		}

@@ -78,7 +78,13 @@ func (h *AuthHandler) DelHandler(c *gin.Context) {
 		web.FailWithMessage(c, "无法获取用户信息")
 		return
 	}
-	msg = h.userservice.WithdrawUser(principal.IsAdmin, req.Username, req.Password)
+	targetUsername := req.Username
+	if !principal.IsAdmin && targetUsername != principal.UserName {
+		web.FailWithMessage(c, "无权注销他人账户")
+		return
+	}
+
+	msg = h.userservice.WithdrawUser(principal.IsAdmin, targetUsername, req.Password)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
