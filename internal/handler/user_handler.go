@@ -68,7 +68,7 @@ func (h *UserHandler) AdminChangePasswordHandler(c *gin.Context) {
 		web.FailWithMessage(c, "无法获取用户信息")
 		return
 	}
-	msg := h.userservice.ChangePassword(principal.IsAdmin, req.UserId, req.Newpassword, "")
+	msg := h.userservice.ChangePassword(principal.IsAdmin, req.UserId, "", req.Newpassword)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return

@@ -78,7 +78,7 @@ func (s *UserService) Logout(userid uint) (message string) {
 // ChangePassword 修改密码
 // 管理员修改用户密码，无需验证旧密码
 // 成功返回空字符串
-func (s *UserService) ChangePassword(isadmin bool, userid uint, newpassword string, oldpassword string) (message string) {
+func (s *UserService) ChangePassword(isadmin bool, userid uint, oldpassword string, newpassword string) (message string) {
 	if !isadmin {
 		user, err := s.userrepo.FindUserById(userid)
 		if err != nil {
