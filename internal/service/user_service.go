@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	AddUser(username string, password string, usertype string) (uint, error)
+	AddUser(username string, password string, isadmin bool) (uint, error)
 	FindUserById(Id uint) (*model.User, error)
 	UpdatePassword(userid uint, newpassword string) error
 	UpdateUserInfo(userid uint, username string, telenum string, overdueNum int) error
@@ -30,12 +30,12 @@ func NewUserService(repo UserRepository, sessionservice *SessionService) *UserSe
 
 // Register 注册新用户
 // 如果id为0，则表示注册失败
-func (s *UserService) Register(username string, password string, usertype string) (id uint, message string) {
+func (s *UserService) Register(username string, password string, isadmin bool) (id uint, message string) {
 	_, err := s.userrepo.FindUserByName(username)
 	if err == nil {
 		return 0, model.ErrUserAlreadyExists
 	}
-	id, err = s.userrepo.AddUser(username, password, usertype)
+	id, err = s.userrepo.AddUser(username, password, isadmin)
 	if err != nil {
 		return 0, model.ErrServerInternal
 	}
@@ -43,7 +43,7 @@ func (s *UserService) Register(username string, password string, usertype string
 }
 
 // Login 用户登录
-// 用户指针为空即失败
+// token为空即失败
 func (s *UserService) Login(username string, password string) (token string, message string) {
 	targetuser, err := s.userrepo.FindUserByName(username)
 	if err != nil {
@@ -53,7 +53,7 @@ func (s *UserService) Login(username string, password string) (token string, mes
 		return "", model.ErrPasswordWrong
 	}
 
-	token, msg := s.sessionservice.CreateSession(targetuser.ID, targetuser.IsAdmin)
+	token, msg := s.sessionservice.CreateSession(targetuser.ID, targetuser.UserName, targetuser.IsAdmin)
 	if msg != "" {
 		return "", msg
 	}
@@ -123,17 +123,23 @@ func (s *UserService) ChangeUserInfo(userid uint, username string, telenum strin
 // WithdrawUser 删除用户
 // 用户验证密码，管理员直接操作
 // 成功返回空字符串
-func (s *UserService) WithdrawUser(isadmin bool, userid uint, password string) (message string) {
+func (s *UserService) WithdrawUser(isadmin bool, username string, password string) (message string) {
+	user, err := s.userrepo.FindUserByName(username)
+	if err != nil {
+		return model.ErrUserNotFound
+	}
 	if !isadmin {
-		user, err := s.userrepo.FindUserById(userid)
-		if err != nil {
-			return model.ErrUserNotFound
+		if username != user.UserName {
+			return model.ErrForbidden
 		}
 		if user.Password != password {
 			return model.ErrPasswordWrong
 		}
 	}
-	err := s.userrepo.DeleUser(userid)
+	if user.NowBorrNum > 0 {
+		return "用户有未归还的书籍，无法删除"
+	}
+	err = s.userrepo.DeleUser(user.ID)
 	if err != nil {
 		return err.Error()
 	}
@@ -152,4 +158,17 @@ func (s *UserService) GetAllUsersInfo(isadmin bool) (userlist []model.UserInfo, 
 		return nil, err.Error()
 	}
 	return userlist, ""
+}
+
+func (s *UserService) GetUserInfoByName(username string) (user *model.UserInfo, message string) {
+	targetuser, err := s.userrepo.FindUserByName(username)
+	if err != nil {
+		return nil, model.ErrUserNotFound
+	}
+	return &model.UserInfo{
+		ID:       targetuser.ID,
+		UserName: targetuser.UserName,
+		Telenum:  targetuser.Telenum,
+		IsAdmin:  targetuser.IsAdmin,
+	}, ""
 }

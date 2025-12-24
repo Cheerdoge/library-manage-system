@@ -20,7 +20,7 @@ func NewUserDao(db *gorm.DB) *UserDao {
 // Adduser添加新用户
 // 成功：用户id，nil
 // 失败：0，错误信息
-func (dao *UserDao) Adduser(username string, password string, isadmin bool) (uint, error) {
+func (dao *UserDao) AddUser(username string, password string, isadmin bool) (uint, error) {
 	var user model.User
 	user.UserName = username
 	user.Password = password

@@ -9,9 +9,13 @@ type AddBook struct {
 	Num      int    `json:"num"`
 }
 
-//查找图书请求，逻辑：书名-->id-->书
+//查找图书请求
 type FindBook struct {
 	Bookname string `json:"bookname"`
+}
+
+type FindBookById struct {
+	BookId uint `json:"bookid"`
 }
 
 //删除图书请求，分部分和全部
@@ -23,7 +27,7 @@ type DelBook struct {
 //更新图书信息，主要是数量
 type UpdateBook struct {
 	Id  uint `json:"id"`
-	Num uint `json:"num"`
+	Num int  `json:"num"`
 }
 
 //================User===============
@@ -32,7 +36,6 @@ type UpdateBook struct {
 type AddUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Type     uint   `json:"type"` //1为普通用户，0为管理员
 }
 
 //用户登录请求
@@ -41,13 +44,9 @@ type LoginUser struct {
 	Password string `json:"password"`
 }
 
-//用户登出请求
-type LogoutUser struct {
-	Username string `json:"username"`
-}
-
 //用户修改密码请求
 type ChangePassword struct {
+	UserId      uint   `json:"user_id"`
 	Oldpassword string `json:"oldpassword"`
 	Newpassword string `json:"newpassword"`
 }
@@ -58,15 +57,15 @@ type ChangeUserInfo struct {
 	Telenum  string `json:"telenum"`
 }
 
-//查找用户请求
-type FindUser struct {
-	Username string `json:"username"`
-}
-
 //用户注销请求
 type DelUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+//管理员获取指定用户信息请求
+type GetUserInfo struct {
+	Username string `json:"username"`
 }
 
 //================BorrowRecord===============
