@@ -58,18 +58,19 @@ func InitDB() (*gorm.DB, error) {
 
 func InitAdmin(db *gorm.DB) error {
 	var user model.User
-	result := db.FirstOrCreate(&user, "type = ?", "admin")
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected > 0 {
+	// 检查是否存在 username 为 admin 的用户
+	result := db.Where("username = ?", "admin").First(&user)
+
+	if result.Error == gorm.ErrRecordNotFound {
 		fmt.Println("正在新建管理员账号")
 		user.UserName = "admin"
 		user.Password = "admin123"
 		user.IsAdmin = true
-		if err := db.Save(&user).Error; err != nil {
+		if err := db.Create(&user).Error; err != nil {
 			return err
 		}
+	} else if result.Error != nil {
+		return result.Error
 	}
 	return nil
 }

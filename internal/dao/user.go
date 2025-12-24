@@ -50,7 +50,7 @@ func (dao *UserDao) FindUserById(Id uint) (*model.User, error) {
 // 失败：nil，错误信息
 func (dao *UserDao) FindUserByName(name string) (*model.User, error) {
 	var user model.User
-	result := dao.db.Where("user_name = ?", name).First(&user)
+	result := dao.db.Where("username = ?", name).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

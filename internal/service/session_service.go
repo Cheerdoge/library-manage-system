@@ -36,7 +36,7 @@ func (s *SessionService) CreateSession(userId uint, username string, IsAdmin boo
 func (s *SessionService) CheckSessionByToken(token string) (session *model.Session, message string) {
 	session, err := s.repo.FindSessionByToken(token)
 	if err != nil {
-		return nil, "获取session失败:" + err.Error()
+		return nil, "未找到session:" + err.Error()
 	}
 	if session.ExpiresAt.Before(time.Now()) {
 		s.repo.DeleteSessionByToken(token)
