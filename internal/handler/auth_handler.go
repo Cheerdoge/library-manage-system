@@ -29,6 +29,11 @@ func (h *AuthHandler) LoginHandler(c *gin.Context) {
 		return
 	}
 
+	if req.Username == "" || req.Password == "" {
+		web.FailWithMessage(c, "用户名或密码不能为空")
+		return
+	}
+
 	token, msg := h.userservice.Login(req.Username, req.Password)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
@@ -60,6 +65,10 @@ func (h *AuthHandler) DelHandler(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
+		return
+	}
+	if req.Username == "" || req.Password == "" {
+		web.FailWithMessage(c, "用户名或密码不能为空")
 		return
 	}
 	token, err := c.Cookie("session_token")
@@ -99,6 +108,10 @@ func (h *AuthHandler) RegisterUserHandler(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
+		return
+	}
+	if req.Username == "" || req.Password == "" {
+		web.FailWithMessage(c, "用户名或密码不能为空")
 		return
 	}
 	id, msg := h.userservice.Register(req.Username, req.Password, false)

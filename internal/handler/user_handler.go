@@ -42,6 +42,10 @@ func (h *UserHandler) UserChangePasswordHandler(c *gin.Context) {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
+	if req.Oldpassword == "" || req.Newpassword == "" {
+		web.FailWithMessage(c, "密码不能为空")
+		return
+	}
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法获取用户信息")
@@ -65,6 +69,10 @@ func (h *UserHandler) AdminChangePasswordHandler(c *gin.Context) {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
+	if req.Newpassword == "" || req.UserId == 0 {
+		web.FailWithMessage(c, "新密码或用户ID不能为空")
+		return
+	}
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法获取用户信息")
@@ -84,6 +92,10 @@ func (h *UserHandler) ChangeUserInfoHandler(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
+		return
+	}
+	if req.Username == "" && req.Telenum == "" {
+		web.FailWithMessage(c, "用户名和电话号码不能同时为空")
 		return
 	}
 	principal, err := model.GetPrincipal(c)
