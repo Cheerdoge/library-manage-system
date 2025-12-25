@@ -110,7 +110,14 @@ func (s *BookService) NewBook(bookname string, author string, sum_num int) (book
 // RemoveBook 删除图书
 // bool值表示是否成功
 func (s *BookService) RemoveBook(bookid uint) (ok bool, message string) {
-	err := s.repo.DelBook(bookid)
+	book, err := s.repo.FindBookById(bookid)
+	if err != nil {
+		return false, "图书不存在:" + err.Error()
+	}
+	if book.BorrNum > 0 {
+		return false, "图书有未归还记录，无法删除"
+	}
+	err = s.repo.DelBook(bookid)
 	if err != nil {
 		return false, "删除图书失败:" + err.Error()
 	}
