@@ -114,6 +114,10 @@ func (h *BookHandler) AddBookHandler(c *gin.Context) {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
+	if req.Bookname == "" || req.Author == "" || req.Num <= 0 {
+		web.FailWithMessage(c, "图书名称、作者不能为空,数量需大于0")
+		return
+	}
 	bookid, msg := h.bookservice.NewBook(req.Bookname, req.Author, req.Num)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
