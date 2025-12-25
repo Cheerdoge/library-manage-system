@@ -14,7 +14,7 @@ type BookRepository interface {
 	UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error
 	FindAllBooks() ([]model.BookInfo, error)
 	FindAvailableBooks() ([]model.BookInfo, error)
-	ModifyStore(tx *gorm.DB, bookid uint, num int) error
+	ModifyStore(tx *gorm.DB, bookid uint, nownum int, bornum int) error
 }
 
 type BookService struct {

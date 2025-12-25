@@ -61,7 +61,7 @@ func (s *BorrowService) Borrow(bookid uint, userid uint, booknum int) (shouldret
 		State:        "borrowing",
 	}
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		err := s.bookservice.repo.ModifyStore(tx, bookid, -booknum)
+		err := s.bookservice.repo.ModifyStore(tx, bookid, -booknum, booknum)
 		if err != nil {
 			return err
 		}
@@ -97,7 +97,7 @@ func (s *BorrowService) Return(recordid uint) (isontime bool, message string) {
 		if err != nil {
 			return err
 		}
-		err = s.bookservice.repo.ModifyStore(tx, targetrecord.BookID, targetrecord.BookNum)
+		err = s.bookservice.repo.ModifyStore(tx, targetrecord.BookID, targetrecord.BookNum, 0)
 		if err != nil {
 			return err
 		}

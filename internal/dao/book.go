@@ -176,8 +176,11 @@ func (dao *BookDao) FindAvailableBooks() ([]model.BookInfo, error) {
 }
 
 // ModifyStore 配合事务的库存修改
-func (dao *BookDao) ModifyStore(tx *gorm.DB, bookid uint, num int) error {
-	result := tx.Model(&model.Book{}).Where("id = ?", bookid).Update("now_num", gorm.Expr("now_num + ?", num))
+func (dao *BookDao) ModifyStore(tx *gorm.DB, bookid uint, nownum int, bornum int) error {
+	result := tx.Model(&model.Book{}).Where("id = ?", bookid).Updates(map[string]interface{}{
+		"now_num":  gorm.Expr("now_num + ?", nownum),
+		"borr_num": gorm.Expr("borr_num + ?", bornum),
+	})
 	if result.Error != nil {
 		return result.Error
 	}
