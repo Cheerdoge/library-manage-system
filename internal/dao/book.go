@@ -40,22 +40,28 @@ func (dao *BookDao) FindBookById(ID uint) (*model.BookInfo, error) {
 // FindBookByName 通过名称查找图书
 // 成功：书指针，nil
 // 失败：nil，错误信息
-func (dao *BookDao) FindBookByName(name string) (*model.BookInfo, error) {
-	var book model.Book
-	//根据name查询，并把结果填入book
-	result := dao.db.First(&book, "bookname = ?", name)
+func (dao *BookDao) FindBookByName(name string) ([]model.BookInfo, error) {
+	var booklist []model.Book
+	var bookInfos []model.BookInfo
+	//根据name查询，并把结果填入booklist
+	result := dao.db.Find(&booklist, "bookname = ?", name)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &model.BookInfo{
-		ID:       book.ID,
-		Bookname: book.Bookname,
-		Author:   book.Author,
-		SumNum:   book.SumNum,
-		BorrNum:  book.BorrNum,
-		NowNum:   book.NowNum,
-	}, nil
+	for _, book := range booklist {
+		bookInfo := model.BookInfo{
+			ID:       book.ID,
+			Bookname: book.Bookname,
+			Author:   book.Author,
+			SumNum:   book.SumNum,
+			BorrNum:  book.BorrNum,
+			NowNum:   book.NowNum,
+		}
+		bookInfos = append(bookInfos, bookInfo)
+	}
+
+	return bookInfos, nil
 }
 
 // AddBook 新增单个图书

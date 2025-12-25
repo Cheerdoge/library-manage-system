@@ -1,15 +1,13 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 	"gorm.io/gorm"
 )
 
 type BookRepository interface {
 	FindBookById(ID uint) (*model.BookInfo, error)
-	FindBookByName(name string) (*model.BookInfo, error)
+	FindBookByName(name string) ([]model.BookInfo, error)
 	AddBook(bookname string, author string, sum_num int) (uint, error)
 	AddBooks(newbooks []*model.Book) ([]uint, error)
 	DelBook(bookid uint) error
@@ -49,24 +47,36 @@ func (s *BookService) GetBookById(ID uint) (book *model.BookInfo, message string
 }
 
 // GetBookByName 通过名称查找图书
-func (s *BookService) GetBookByName(name string) (book *model.BookInfo, message string) {
-	book, err := s.repo.FindBookByName(name)
+func (s *BookService) GetBookByName(name string) (books []model.BookInfo, message string) {
+	books, err := s.repo.FindBookByName(name)
 	if err != nil {
-		return nil, "图书不存在:" + err.Error()
+		return nil, "查询失败:" + err.Error()
 	}
-	return book, ""
+	if len(books) == 0 {
+		return nil, "图书不存在"
+	}
+	return books, ""
 }
 
 // GetAvailableBooksByName 通过名称查找可借阅图书
-func (s *BookService) GetAvailableBooksByName(name string) (book *model.BookInfo, message string) {
-	book, err := s.repo.FindBookByName(name)
+func (s *BookService) GetAvailableBooksByName(name string) (books []model.BookInfo, message string) {
+	books, err := s.repo.FindBookByName(name)
 	if err != nil {
 		return nil, "查找可借阅图书失败:" + err.Error()
 	}
-	if book.NowNum <= 0 {
-		return nil, "图书暂无库存"
+	if len(books) == 0 {
+		return nil, "图书不存在"
 	}
-	return book, "当前库存：" + fmt.Sprint(book.NowNum)
+	var availableBooks []model.BookInfo
+	for _, book := range books {
+		if book.NowNum > 0 {
+			availableBooks = append(availableBooks, book)
+		}
+	}
+	if len(availableBooks) == 0 {
+		return nil, "所查询图书暂无可借阅库存"
+	}
+	return availableBooks, ""
 }
 
 // GetAvailableBooks 获取所有可借图书

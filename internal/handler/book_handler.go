@@ -23,8 +23,13 @@ func (h *BookHandler) GetBooksHandler(c *gin.Context) {
 	available := c.Query("available")
 	name := c.Query("name")
 
+	if available != "true" && available != "" {
+		web.FailWithMessage(c, "available参数有误")
+		return
+	}
+
 	if available == "true" && name != "" {
-		book, msg := h.bookservice.GetAvailableBooksByName(name) // 需要确保 Service 有这个方法
+		book, msg := h.bookservice.GetAvailableBooksByName(name)
 		if msg != "" {
 			web.FailWithMessage(c, msg)
 			return
