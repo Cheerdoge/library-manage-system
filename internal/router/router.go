@@ -37,7 +37,7 @@ func RegisterRoutes(
 
 		// 借阅相关
 		authGroup.GET("/borrow_records", borrowhandler.GetUserBorrowRecordsHandler)
-		authGroup.POST("/borrow_records/borrow", borrowhandler.BorrowBookHandler)
+		authGroup.POST("/books/:id/borrow", borrowhandler.BorrowBookHandler)
 		authGroup.POST("/borrow_records/:recordid/return", borrowhandler.ReturnBookHandler)
 
 		adminGroup := authGroup.Group("/admin")

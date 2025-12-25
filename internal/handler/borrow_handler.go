@@ -25,13 +25,20 @@ func (h *BorrowHandler) BorrowBookHandler(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
+		return
+	}
+	bookidstr := c.Params.ByName("id")
+	bookid, err := strconv.Atoi(bookidstr)
+	if err != nil {
+		web.FailWithMessage(c, "请求参数有误")
+		return
 	}
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法获取用户信息")
 		return
 	}
-	shouldreturn, msg := h.borrowservice.Borrow(req.Bookid, principal.UserID, req.BookNum)
+	shouldreturn, msg := h.borrowservice.Borrow(uint(bookid), principal.UserID, req.BookNum)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
