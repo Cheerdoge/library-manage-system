@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/Cheerdoge/library-manage-system/internal/middleware"
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 	"github.com/Cheerdoge/library-manage-system/internal/service"
@@ -93,7 +95,7 @@ func (h *AuthHandler) DelHandler(c *gin.Context) {
 		return
 	}
 
-	msg = h.userservice.WithdrawUser(principal.IsAdmin, targetUsername, req.Password)
+	msg = h.userservice.WithdrawUser(targetUsername, req.Password)
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
@@ -136,4 +138,20 @@ func (h *AuthHandler) RegisterAdminHandler(c *gin.Context) {
 		return
 	}
 	web.Ok(c, "注册成功,请牢记账户和密码", gin.H{"user_id": id})
+}
+
+// 管理员注销用户 AdminDelHandler
+func (h *AuthHandler) AdminDelHandler(c *gin.Context) {
+	useridstr := c.Param("userid")
+	userid, err := strconv.Atoi(useridstr)
+	if err != nil {
+		web.FailWithMessage(c, "请求参数有误")
+		return
+	}
+	msg := h.userservice.AdminWithdrawUser(uint(userid))
+	if msg != "" {
+		web.FailWithMessage(c, msg)
+		return
+	}
+	web.OkWithMessage(c, "用户注销成功")
 }

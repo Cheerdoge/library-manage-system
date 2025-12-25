@@ -121,20 +121,18 @@ func (s *UserService) ChangeUserInfo(userid uint, username string, telenum strin
 }
 
 // WithdrawUser 删除用户
-// 用户验证密码，管理员直接操作
+// 用户验证密码
 // 成功返回空字符串
-func (s *UserService) WithdrawUser(isadmin bool, username string, password string) (message string) {
+func (s *UserService) WithdrawUser(username string, password string) (message string) {
 	user, err := s.userrepo.FindUserByName(username)
 	if err != nil {
 		return model.ErrUserNotFound
 	}
-	if !isadmin {
-		if user.Password != password {
-			return model.ErrPasswordWrong
-		}
-	}
 	if user.NowBorrNum > 0 {
 		return "用户有未归还的书籍，无法删除"
+	}
+	if user.Password != password {
+		return model.ErrPasswordWrong
 	}
 	err = s.userrepo.DeleUser(user.ID)
 	if err != nil {
@@ -168,4 +166,19 @@ func (s *UserService) GetUserInfoByName(username string) (user *model.UserInfo, 
 		Telenum:  targetuser.Telenum,
 		IsAdmin:  targetuser.IsAdmin,
 	}, ""
+}
+
+func (s *UserService) AdminWithdrawUser(userid uint) (message string) {
+	user, err := s.userrepo.FindUserById(userid)
+	if err != nil {
+		return model.ErrUserNotFound
+	}
+	if user.NowBorrNum > 0 {
+		return "用户有未归还的书籍，无法删除"
+	}
+	err = s.userrepo.DeleUser(user.ID)
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }

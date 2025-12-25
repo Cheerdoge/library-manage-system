@@ -46,6 +46,10 @@ func (h *UserHandler) UserChangePasswordHandler(c *gin.Context) {
 		web.FailWithMessage(c, "密码不能为空")
 		return
 	}
+	if req.Oldpassword == req.Newpassword {
+		web.FailWithMessage(c, "新旧密码不能相同")
+		return
+	}
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法获取用户信息")

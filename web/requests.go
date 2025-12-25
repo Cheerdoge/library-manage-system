@@ -46,7 +46,6 @@ type LoginUser struct {
 
 //用户修改密码请求
 type ChangePassword struct {
-	UserId      uint   `json:"userid"`
 	Oldpassword string `json:"oldpassword"`
 	Newpassword string `json:"newpassword"`
 }

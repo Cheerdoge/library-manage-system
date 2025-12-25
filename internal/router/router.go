@@ -47,7 +47,7 @@ func RegisterRoutes(
 			adminGroup.GET("/users", userhandler.AdminGetAllUserInfoHandler)
 			adminGroup.GET("/users/:userid", userhandler.AdminGetUserInfoHandler)
 			adminGroup.PUT("/users/:userid/password", userhandler.AdminChangePasswordHandler)
-			adminGroup.DELETE("/users/:userid", authhandler.DelHandler)
+			adminGroup.DELETE("/users/:userid", authhandler.AdminDelHandler)
 
 			// 图书管理
 			adminGroup.POST("/books", bookhandler.AddBookHandler)
