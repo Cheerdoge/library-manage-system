@@ -43,7 +43,7 @@ func (s *BookService) GetAllBooks() (booklist []model.BookInfo, message string) 
 func (s *BookService) GetBookById(ID uint) (book *model.BookInfo, message string) {
 	book, err := s.repo.FindBookById(ID)
 	if err != nil {
-		return nil, "查找图书失败:" + err.Error()
+		return nil, "图书不存在:" + err.Error()
 	}
 	return book, ""
 }
@@ -52,7 +52,7 @@ func (s *BookService) GetBookById(ID uint) (book *model.BookInfo, message string
 func (s *BookService) GetBookByName(name string) (book *model.BookInfo, message string) {
 	book, err := s.repo.FindBookByName(name)
 	if err != nil {
-		return nil, "查找图书失败:" + err.Error()
+		return nil, "图书不存在:" + err.Error()
 	}
 	return book, ""
 }

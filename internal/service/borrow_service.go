@@ -46,7 +46,7 @@ func (s *BorrowService) Borrow(bookid uint, userid uint, booknum int) (shouldret
 	}
 	book, err := s.bookservice.repo.FindBookById(bookid)
 	if err != nil {
-		return time.Time{}, "查找图书失败:" + err.Error()
+		return time.Time{}, "图书不存在:" + err.Error()
 	}
 	if book.NowNum < booknum {
 		return time.Time{}, "图书库存不足"

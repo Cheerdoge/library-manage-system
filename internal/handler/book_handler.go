@@ -20,7 +20,20 @@ func NewBookHandler(bookservice *service.BookService) *BookHandler {
 
 // GetBooksHandler 获取所有书籍信息，支持查询可借图书
 func (h *BookHandler) GetBooksHandler(c *gin.Context) {
-	if c.Query("available") == "true" {
+	available := c.Query("available")
+	name := c.Query("name")
+
+	if available == "true" && name != "" {
+		book, msg := h.bookservice.GetAvailableBooksByName(name) // 需要确保 Service 有这个方法
+		if msg != "" {
+			web.FailWithMessage(c, msg)
+			return
+		}
+		web.OkWithData(c, []interface{}{book})
+		return
+	}
+
+	if available == "true" {
 		booklist, msg := h.bookservice.GetAvailableBooks()
 		if msg != "" {
 			web.FailWithMessage(c, msg)
@@ -30,28 +43,23 @@ func (h *BookHandler) GetBooksHandler(c *gin.Context) {
 		return
 	}
 
+	if name != "" {
+		book, msg := h.bookservice.GetBookByName(name)
+		if msg != "" {
+			web.FailWithMessage(c, msg)
+			return
+		}
+		// 为了保持返回格式统一为数组，建议包一层
+		web.OkWithData(c, []interface{}{book})
+		return
+	}
+
 	booklist, msg := h.bookservice.GetAllBooks()
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
 	}
 	web.OkWithData(c, booklist)
-}
-
-// GetBooksByNameHandler 通过名称获取书籍信息
-func (h *BookHandler) GetBooksByNameHandler(c *gin.Context) {
-	name := c.Query("name")
-	if name != "" {
-		web.FailWithMessage(c, "请求参数有误")
-		return
-	}
-	book, msg := h.bookservice.GetBookByName(name)
-	if msg != "" {
-		web.FailWithMessage(c, msg)
-		return
-	}
-
-	web.OkWithData(c, book)
 }
 
 // GetBookByIdHandler 通过ID获取书籍信息
