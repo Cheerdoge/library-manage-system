@@ -52,6 +52,7 @@ func (dao *BookDao) FindBookByName(name string) (*model.BookInfo, error) {
 		ID:       book.ID,
 		Bookname: book.Bookname,
 		Author:   book.Author,
+		SumNum:   book.SumNum,
 		BorrNum:  book.BorrNum,
 		NowNum:   book.NowNum,
 	}, nil
@@ -134,6 +135,7 @@ func (dao *BookDao) FindAllBooks() ([]model.BookInfo, error) {
 			ID:       book.ID,
 			Bookname: book.Bookname,
 			Author:   book.Author,
+			SumNum:   book.SumNum,
 			BorrNum:  book.BorrNum,
 			NowNum:   book.NowNum,
 		}
@@ -157,6 +159,7 @@ func (dao *BookDao) FindAvailableBooks() ([]model.BookInfo, error) {
 			ID:       book.ID,
 			Bookname: book.Bookname,
 			Author:   book.Author,
+			SumNum:   book.SumNum,
 			BorrNum:  book.BorrNum,
 			NowNum:   book.NowNum,
 		}
