@@ -30,10 +30,10 @@ func RegisterRoutes(
 	{
 		// 用户相关
 		authGroup.GET("/logout", authhandler.LogoutHandler)
-		authGroup.POST("/user/del", authhandler.DelHandler)
+		authGroup.DELETE("/user", authhandler.DelHandler)
 		authGroup.GET("/user", userhandler.GetUserInfoHandler)
-		authGroup.POST("/user/change_password", userhandler.UserChangePasswordHandler)
-		authGroup.POST("/user/change_info", userhandler.ChangeUserInfoHandler)
+		authGroup.PUT("/user/change_password", userhandler.UserChangePasswordHandler)
+		authGroup.PUT("/user/change_info", userhandler.ChangeUserInfoHandler)
 
 		// 借阅相关
 		authGroup.GET("/borrow_records", borrowhandler.GetUserBorrowRecordsHandler)
@@ -46,16 +46,16 @@ func RegisterRoutes(
 			// 用户管理
 			adminGroup.GET("/users", userhandler.AdminGetAllUserInfoHandler)
 			adminGroup.GET("/users/:userid", userhandler.AdminGetUserInfoHandler)
-			adminGroup.POST("/users/password", userhandler.AdminChangePasswordHandler)
-			adminGroup.POST("/users/delete", authhandler.DelHandler)
+			adminGroup.PUT("/users/:userid/password", userhandler.AdminChangePasswordHandler)
+			adminGroup.DELETE("/users/:userid", authhandler.DelHandler)
 
 			// 图书管理
-			adminGroup.POST("/books/addbook", bookhandler.AddBookHandler)
+			adminGroup.POST("/books", bookhandler.AddBookHandler)
 			adminGroup.PUT("/books/:id", bookhandler.UpdateBookHandler)
 			adminGroup.DELETE("/books/:id", bookhandler.DeleteBookHandler)
 
 			// 借阅管理
-			adminGroup.GET("/borrow_records/all", borrowhandler.GetAllBorrowRecordsHandler)
+			adminGroup.GET("/borrow_records", borrowhandler.GetAllBorrowRecordsHandler)
 		}
 	}
 }

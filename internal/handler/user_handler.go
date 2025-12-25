@@ -63,22 +63,14 @@ func (h *UserHandler) UserChangePasswordHandler(c *gin.Context) {
 
 // AdminChangePasswordHandler 管理员重置用户密码
 func (h *UserHandler) AdminChangePasswordHandler(c *gin.Context) {
-	var req web.ChangePassword
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		web.FailWithMessage(c, "请求参数有误")
-		return
-	}
-	if req.Newpassword == "" || req.UserId == 0 {
-		web.FailWithMessage(c, "新密码或用户ID不能为空")
-		return
-	}
+	useridStr := c.Param("userid")
+	userid, err := strconv.Atoi(useridStr)
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法获取用户信息")
 		return
 	}
-	msg := h.userservice.ChangePassword(principal.IsAdmin, req.UserId, "", req.Newpassword)
+	msg := h.userservice.ChangePassword(principal.IsAdmin, uint(userid), "", "123456")
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return
