@@ -31,8 +31,8 @@ func (dao *BorrowRecordDao) ReturnBook(db *gorm.DB, recordid uint) error {
 	result := db.Model(&model.BorrowRecord{}).
 		Where("id = ? AND state = ?", recordid, "borrowing").
 		Updates(map[string]interface{}{
-			"state":     "returned",
-			"return_at": time.Now(),
+			"state":       "returned",
+			"return_date": time.Now(),
 		})
 
 	if result.Error != nil {
