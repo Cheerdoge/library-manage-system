@@ -72,3 +72,13 @@ type Session struct {
 	CreatedAt time.Time `json:"created_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
+
+type BorrowRecordInfo struct {
+	ID           uint   `json:"id"`
+	BookID       uint   `json:"book_id" gorm:"column:book_id"`
+	UserID       uint   `json:"user_id" gorm:"column:user_id"`
+	BookNum      int    `json:"book_num"`
+	BorrowDate   string `json:"borrow_date"`
+	ShouldReturn string `json:"should_return"`
+	State        string `json:"state"` //未归还：borrowing, 已归还：returned
+}

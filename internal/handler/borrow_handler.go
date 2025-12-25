@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 	"github.com/Cheerdoge/library-manage-system/internal/service"
 	"github.com/Cheerdoge/library-manage-system/web"
@@ -39,13 +41,13 @@ func (h *BorrowHandler) BorrowBookHandler(c *gin.Context) {
 
 // 请求还书 ReturnBookHandler
 func (h *BorrowHandler) ReturnBookHandler(c *gin.Context) {
-	var req web.ReturnBook
-	err := c.ShouldBindJSON(&req)
+	recordidstr := c.Param("recordid")
+	recordid, err := strconv.Atoi(recordidstr)
 	if err != nil {
 		web.FailWithMessage(c, "请求参数有误")
 		return
 	}
-	isontime, msg := h.borrowservice.Return(req.Recordid)
+	isontime, msg := h.borrowservice.Return(uint(recordid))
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return

@@ -118,12 +118,24 @@ func (s *BorrowService) Return(recordid uint) (isontime bool, message string) {
 
 // GetUserBorrowRecords 获取用户未归还的借书记录
 // 失败返回nil，错误信息
-func (s *BorrowService) GetUserBorrowRecords(userid uint) (records []model.BorrowRecord, message string) {
+func (s *BorrowService) GetUserBorrowRecords(userid uint) (records []model.BorrowRecordInfo, message string) {
 	_, err := s.userservice.userrepo.FindUserById(userid)
 	if err != nil {
 		return nil, model.ErrUserNotFound
 	}
-	records, err = s.borrowrepo.FindBorrowRecord(userid)
+	recordlist, err := s.borrowrepo.FindBorrowRecord(userid)
+	for _, record := range recordlist {
+		recordInfo := model.BorrowRecordInfo{
+			ID:           record.ID,
+			BookID:       record.BookID,
+			UserID:       record.UserID,
+			BookNum:      record.BookNum,
+			BorrowDate:   record.BorrowDate.Format("2006-01-02 15:04:05"),
+			ShouldReturn: record.ShouldReturn.Format("2006-01-02 15:04:05"),
+			State:        record.State,
+		}
+		records = append(records, recordInfo)
+	}
 	if err != nil {
 		return nil, err.Error()
 	}
@@ -133,13 +145,25 @@ func (s *BorrowService) GetUserBorrowRecords(userid uint) (records []model.Borro
 // GetAllBorrowRecords 获取所有状态为未归还的借书记录,管理员专属
 // 成功：借书记录切片，“”
 // 失败：nil，错误信息
-func (s *BorrowService) GetAllBorrowRecords(isadmin bool) (records []model.BorrowRecord, message string) {
+func (s *BorrowService) GetAllBorrowRecords(isadmin bool) (records []model.BorrowRecordInfo, message string) {
 	if !isadmin {
 		return nil, model.ErrForbidden
 	}
-	records, err := s.borrowrepo.FindAllBorrowRecords()
+	recordlist, err := s.borrowrepo.FindAllBorrowRecords()
 	if err != nil {
 		return nil, err.Error()
+	}
+	for _, record := range recordlist {
+		recordInfo := model.BorrowRecordInfo{
+			ID:           record.ID,
+			BookID:       record.BookID,
+			UserID:       record.UserID,
+			BookNum:      record.BookNum,
+			BorrowDate:   record.BorrowDate.Format("2006-01-02 15:04:05"),
+			ShouldReturn: record.ShouldReturn.Format("2006-01-02 15:04:05"),
+			State:        record.State,
+		}
+		records = append(records, recordInfo)
 	}
 	return records, ""
 }

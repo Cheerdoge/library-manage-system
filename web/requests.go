@@ -74,8 +74,3 @@ type BorrowBook struct {
 	Bookid  uint `json:"book_id"`
 	BookNum int  `json:"book_num"`
 }
-
-//归还图书请求
-type ReturnBook struct {
-	Recordid uint `json:"record_id"`
-}

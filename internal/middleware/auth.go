@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const SessionDuration = 30 * time.Minute // Session有效期为7天
+const SessionDuration = 7 * 24 * time.Hour // Session有效期为7天
 
 func AuthMiddleware(sessionservice *service.SessionService) gin.HandlerFunc {
 	return func(c *gin.Context) {
