@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	"github.com/Cheerdoge/library-manage-system/internal/model"
 	"github.com/Cheerdoge/library-manage-system/internal/service"
 	"github.com/Cheerdoge/library-manage-system/web"
@@ -99,12 +101,13 @@ func (h *UserHandler) ChangeUserInfoHandler(c *gin.Context) {
 
 // AdminGetUserInfoHandler 管理员获取指定用户信息
 func (h *UserHandler) AdminGetUserInfoHandler(c *gin.Context) {
-	var req web.GetUserInfo
-	err := c.ShouldBindJSON(&req)
+	useridStr := c.Param("userid")
+	userid, err := strconv.Atoi(useridStr)
 	if err != nil {
-		web.FailWithMessage(c, "请求参数有误")
+		web.FailWithMessage(c, "用户ID格式错误")
 		return
 	}
+
 	principal, err := model.GetPrincipal(c)
 	if err != nil {
 		web.FailWithMessage(c, "无法通过上下文获取用户信息")
@@ -114,7 +117,7 @@ func (h *UserHandler) AdminGetUserInfoHandler(c *gin.Context) {
 		web.FailWithMessage(c, "权限不足")
 		return
 	}
-	userinfo, msg := h.userservice.GetUserInfoByName(req.Username)
+	userinfo, msg := h.userservice.GetUserInfo(uint(userid))
 	if msg != "" {
 		web.FailWithMessage(c, msg)
 		return

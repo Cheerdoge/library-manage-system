@@ -64,9 +64,9 @@ type DelUser struct {
 }
 
 //管理员获取指定用户信息请求
-type GetUserInfo struct {
-	Username string `json:"username"`
-}
+// type GetUserInfo struct {
+// 	Username string `json:"username"`
+// }
 
 //================BorrowRecord===============
 
