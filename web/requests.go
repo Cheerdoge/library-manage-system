@@ -73,7 +73,6 @@ type DelUser struct {
 //新增借书记录请求
 type BorrowBook struct {
 	Bookid  uint `json:"book_id"`
-	Userid  uint `json:"user_id"`
 	BookNum int  `json:"book_num"`
 }
 

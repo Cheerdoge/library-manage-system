@@ -40,7 +40,7 @@ type BorrowRecord struct {
 	UserID       uint           `json:"user_id" gorm:"column:user_id"`
 	BookNum      int            `json:"book_num"`
 	BorrowDate   time.Time      `json:"borrow_date"`
-	ReturnDate   time.Time      `json:"return_date"`
+	ReturnDate   *time.Time     `json:"return_date"`
 	ShouldReturn time.Time      `json:"should_return"`
 	State        string         `json:"state"` //未归还：borrowing, 已归还：returned
 }
