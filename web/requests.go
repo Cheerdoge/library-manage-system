@@ -26,8 +26,7 @@ type DelBook struct {
 
 //更新图书信息，主要是数量
 type UpdateBook struct {
-	Id  uint `json:"id"`
-	Num int  `json:"num"`
+	Num int `json:"num"`
 }
 
 //================User===============

@@ -111,15 +111,15 @@ func (dao *BookDao) DelBook(bookid uint) error {
 // 成功：nil
 // 失败：错误信息
 func (dao *BookDao) UpdateBook(bookid uint, change_num int, bor_num int, return_num int) error {
-	var book *model.BookInfo
-	book, err := dao.FindBookById(bookid)
-	if err != nil {
+	book := new(model.Book)
+	result := dao.db.First(book, "id = ?", bookid)
+	if result.Error != nil {
 		return errors.New("书籍不存在")
 	}
 	book.SumNum = book.SumNum + change_num
 	book.BorrNum = book.BorrNum + bor_num - return_num
 	book.NowNum = book.SumNum - book.BorrNum
-	result := dao.db.Save(book)
+	result = dao.db.Save(book)
 	if result.Error != nil {
 		return result.Error
 	}
