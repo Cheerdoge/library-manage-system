@@ -8,6 +8,7 @@ import (
 	"github.com/Cheerdoge/library-manage-system/internal/handler"
 	"github.com/Cheerdoge/library-manage-system/internal/router"
 	"github.com/Cheerdoge/library-manage-system/internal/service"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -52,6 +53,17 @@ func main() {
 
 	// 启动服务器
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{ // 允许的请求源
+			"http://localhost:5173", // 前端vite的默认启动地址
+			"http://localhost:3000", // 前端自己定义的启动地址
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},                   // 允许的请求方法
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // 允许的请求头
+		AllowCredentials: true,
+	}))
+
 	router.RegisterRoutes(r, bookhandler, borrowhandler, userhandler, authhandler, sessionservice)
 
 	port := ":" + global.AppConfig.Server.Port
